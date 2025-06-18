@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>决策辅助</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #AA77F2;
+            --primary-light: #E5DBFF;
+            --secondary-color: #F472B6;
+            --secondary-light: #FDE2F3;
+            --warm-bg: #FDFAF6;
+            --card-bg: #FFFFFF;
+            --text-primary: #453C67;
+            --text-secondary: #6D6A80;
+            --accent-green: #4ade80;
+            --accent-yellow: #fbbf24;
+            --accent-red: #f87171;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--warm-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(235, 227, 252, 0.8);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(170, 119, 242, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 40px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        
+        .step-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(170, 119, 242, 0.2), rgba(244, 114, 182, 0.2));
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .matrix-cell {
+            padding: 0.5rem 0.75rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .matrix-cell-better {
+            position: relative;
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+        
+        .matrix-cell-worse {
+            position: relative;
+            color: var(--accent-red);
+            font-weight: 500;
+        }
+        
+        .matrix-table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .matrix-table th {
+            color: var(--text-primary);
+            font-weight: 500;
+            padding: 0.5rem;
+        }
+        
+        .matrix-table td {
+            border-top: 1px solid rgba(235, 227, 252, 0.5);
+        }
+        
+        .deco-circle {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(170, 119, 242, 0.2), rgba(244, 114, 182, 0.2));
+            border-radius: 50%;
+            filter: blur(20px);
+            pointer-events: none;
+        }
+        
+        .list-plus li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .list-plus li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+        }
+        
+        .list-minus li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .list-minus li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-red);
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item i {
+            margin-bottom: 0.25rem;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body class="p-4 pb-20 relative">
+    <!-- 装饰元素 -->
+    <div class="deco-circle" style="width: 150px; height: 150px; top: -50px; right: -50px; opacity: 0.2;"></div>
+    <div class="deco-circle" style="width: 120px; height: 120px; bottom: 30%; left: -40px; opacity: 0.15;"></div>
+    
+    <!-- 顶部栏 -->
+    <div class="flex justify-between items-center mb-6 relative z-10">
+        <h1 class="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">决策辅助</h1>
+        <div>
+            <button class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm" style="background: rgba(170, 119, 242, 0.1); color: var(--primary-color);">
+                <i class="bi bi-question-circle text-xl"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 当前决策 -->
+    <div class="card p-4 mb-5 relative overflow-hidden">
+        <div class="absolute -right-2 -top-2 w-20 h-20 opacity-5 transform rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7.99 7h2.503V2.997h2.997v10.999h-8V7h2.5zm1.5 12.004c-1.102 0-2-.9-2-2.002a2 2 0 114 0c0 1.102-.898 2.002-2 2.002z"/>
+            </svg>
+        </div>
+        <div class="flex justify-between items-center mb-2">
+            <h2 class="font-medium">是否接受新工作机会？</h2>
+            <span class="badge" style="background-color: rgba(251, 191, 36, 0.15); color: var(--accent-yellow);">待决策</span>
+        </div>
+        <p class="text-gray-600 text-sm mb-4">
+            收到一家新公司的工作邀请，薪资比现在高30%，但需要搬到另一个城市，距离家人朋友较远。
+        </p>
+        <div class="flex justify-end">
+            <button class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
+                <i class="bi bi-arrow-right-circle mr-1"></i>
+                继续分析
+            </button>
+        </div>
+    </div>
+
+    <!-- 决策分析 -->
+    <div class="card p-4 mb-5 relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 opacity-5 transform rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6A4.997 4.997 0 017 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.63-.8 3.16-2.15 4.1z"/>
+            </svg>
+        </div>
+        <h2 class="section-title">多角度分析</h2>
+
+        <!-- 优点 -->
+        <div class="mb-4">
+            <h3 class="text-sm font-medium mb-2 flex items-center" style="color: var(--accent-green);">
+                <i class="bi bi-plus-circle mr-2"></i>优点
+            </h3>
+            <ul class="text-sm text-gray-600 space-y-2 list-plus">
+                <li>薪资提升30%，改善经济状况</li>
+                <li>职位更高，职业发展空间更大</li>
+                <li>新环境可能带来新机遇和视野</li>
+            </ul>
+        </div>
+
+        <!-- 缺点 -->
+        <div class="mb-4">
+            <h3 class="text-sm font-medium mb-2 flex items-center" style="color: var(--accent-red);">
+                <i class="bi bi-dash-circle mr-2"></i>缺点
+            </h3>
+            <ul class="text-sm text-gray-600 space-y-2 list-minus">
+                <li>离开亲友网络，可能感到孤独</li>
+                <li>新环境适应期需要投入精力和时间</li>
+                <li>生活成本可能更高，实际收入增长有限</li>
+            </ul>
+        </div>
+
+        <!-- 历史决策参考 -->
+        <div>
+            <h3 class="text-sm font-medium mb-2 flex items-center" style="color: #3b82f6;">
+                <i class="bi bi-clock-history mr-2"></i>相关历史决策
+            </h3>
+            <div class="p-3 rounded-lg text-sm text-gray-700" style="background: linear-gradient(to right bottom, rgba(170, 119, 242, 0.05), rgba(244, 114, 182, 0.05)); border-left: 3px solid var(--primary-light);">
+                <p class="mb-2">2022年3月，你面临过类似的工作变动决策：</p>
+                <p class="mb-1">"当时我选择了留在原公司，因为重视稳定性。现在回看，虽然没有冒险，但也错过了一些潜在的发展机会。"</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 决策矩阵 -->
+    <div class="card p-4 mb-5 relative overflow-hidden">
+        <div class="absolute -left-4 -top-4 w-20 h-20 opacity-5 transform -rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+        </div>
+        <h2 class="section-title">决策矩阵</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm matrix-table">
+                <thead>
+                    <tr>
+                        <th class="text-left py-2 pr-4">因素</th>
+                        <th class="text-center py-2 px-2">重要性</th>
+                        <th class="text-center py-2 px-2">现状评分</th>
+                        <th class="text-center py-2 pl-2">新机会评分</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="py-2 pr-4">薪资待遇</td>
+                        <td class="matrix-cell">9</td>
+                        <td class="matrix-cell">6</td>
+                        <td class="matrix-cell-better">8</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-4">职业发展</td>
+                        <td class="matrix-cell">8</td>
+                        <td class="matrix-cell">5</td>
+                        <td class="matrix-cell-better">8</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-4">工作环境</td>
+                        <td class="matrix-cell">7</td>
+                        <td class="matrix-cell">7</td>
+                        <td class="matrix-cell text-gray-400">?</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-4">工作稳定性</td>
+                        <td class="matrix-cell">8</td>
+                        <td class="matrix-cell">8</td>
+                        <td class="matrix-cell" style="color: var(--accent-yellow);">6</td>
+                    </tr>
+                    <tr>
+                        <td class="py-2 pr-4">社交关系</td>
+                        <td class="matrix-cell">6</td>
+                        <td class="matrix-cell">8</td>
+                        <td class="matrix-cell-worse">4</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-3 flex justify-between items-center">
+            <span class="text-gray-500 text-xs">*评分范围：1-10，越高越好</span>
+            <button class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
+                <i class="bi bi-pencil mr-1"></i>
+                编辑矩阵
+            </button>
+        </div>
+    </div>
+
+    <!-- 未来建议 -->
+    <div class="card p-4 mb-5 relative overflow-hidden" style="background: linear-gradient(to right bottom, rgba(233, 225, 255, 0.5), rgba(250, 232, 255, 0.5));">
+        <div class="absolute -right-8 -top-8 w-24 h-24 opacity-10">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
+            </svg>
+        </div>
+        <div class="flex items-center mb-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white;">
+                <i class="bi bi-person text-xl"></i>
+            </div>
+            <div>
+                <h3 class="font-medium">来自未来的你</h3>
+                <p class="text-xs text-gray-500">基于你的历史决策和价值观</p>
+            </div>
+        </div>
+        <p class="text-gray-700 text-sm mb-3">
+            根据你过去的决策模式和价值观，你一直很重视工作与生活的平衡，以及亲密关系的维护。新机会虽然在职业发展上有明显优势，但你可能会低估环境变化带来的社交影响。
+        </p>
+        <p class="text-gray-700 text-sm mb-3">
+            建议你进一步了解新城市的生活环境，以及公司的企业文化。同时，考虑是否可以与现公司协商加薪或晋升可能性，这可能是一个更平衡的选择。
+        </p>
+        <div class="flex justify-end">
+            <button class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
+                <i class="bi bi-chat-dots-fill mr-1"></i>
+                继续对话
+            </button>
+        </div>
+    </div>
+
+    <!-- 行动步骤 -->
+    <div class="card p-4 relative overflow-hidden">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 opacity-5 transform rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM16 18H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+            </svg>
+        </div>
+        <h2 class="section-title">下一步行动计划</h2>
+        <div class="space-y-3">
+            <div class="flex items-center">
+                <div class="step-number mr-3">1</div>
+                <p class="text-sm text-gray-700">与新公司HR详谈薪资福利细节</p>
+            </div>
+            <div class="flex items-center">
+                <div class="step-number mr-3">2</div>
+                <p class="text-sm text-gray-700">实地考察新城市的生活环境</p>
+            </div>
+            <div class="flex items-center">
+                <div class="step-number mr-3">3</div>
+                <p class="text-sm text-gray-700">与现任经理沟通发展机会</p>
+            </div>
+            <div class="flex items-center">
+                <div class="w-6 h-6 rounded-full flex items-center justify-center mr-3" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; box-shadow: 0 2px 5px rgba(170, 119, 242, 0.3);">
+                    <i class="bi bi-plus text-sm"></i>
+                </div>
+                <p class="text-sm font-medium" style="color: var(--primary-color);">添加行动步骤</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around" style="box-shadow: 0 -2px 10px rgba(0,0,0,0.03);">
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-house-door"></i>
+            <span>首页</span>
+        </a>
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-calendar-week"></i>
+            <span>时间线</span>
+        </a>
+        <a href="#" class="nav-item flex flex-col items-center">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mb-1" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); margin-top: -20px; box-shadow: 0 4px 10px rgba(170, 119, 242, 0.3);">
+                <i class="bi bi-plus text-white text-2xl"></i>
+            </div>
+            <span class="text-gray-400 -mt-1">写日记</span>
+        </a>
+        <a href="#" class="nav-item" style="color: var(--primary-color);">
+            <i class="bi bi-lightbulb-fill"></i>
+            <span>决策</span>
+        </a>
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-person"></i>
+            <span>我的</span>
+        </a>
+    </div>
+</body>
+</html> 

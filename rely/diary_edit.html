@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日记编辑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #AA77F2;
+            --primary-light: #E5DBFF;
+            --secondary-color: #F472B6;
+            --secondary-light: #FDE2F3;
+            --warm-bg: #FDFAF6;
+            --paper-bg: #FFFDF8;
+            --text-primary: #453C67;
+            --text-secondary: #6D6A80;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--warm-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .paper {
+            background-color: var(--paper-bg);
+            background-image: 
+                linear-gradient(rgba(200, 200, 200, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(200, 200, 200, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.02);
+        }
+        
+        .editor-area {
+            min-height: 300px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: 'Noto Serif SC', serif;
+            line-height: 1.8;
+            font-size: 1rem;
+            background: transparent;
+            color: var(--text-primary);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(170, 119, 242, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(170, 119, 242, 0.3);
+        }
+        
+        .btn-outline {
+            border: 1px solid rgba(170, 119, 242, 0.5);
+            color: var(--primary-color);
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-outline:hover {
+            background: rgba(170, 119, 242, 0.05);
+        }
+        
+        .emotion-tag {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .emotion-tag:hover, .emotion-tag.active {
+            transform: translateY(-1px);
+        }
+        
+        .emotion-tag.active {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .tooltip-card {
+            position: relative;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(136, 87, 219, 0.1);
+        }
+        
+        .tooltip-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 24px;
+            width: 16px;
+            height: 16px;
+            background: inherit;
+            transform: rotate(45deg);
+            border-top: 1px solid rgba(235, 227, 252, 0.8);
+            border-left: 1px solid rgba(235, 227, 252, 0.8);
+        }
+        
+        .decorated-header {
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .decorated-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            width: 40px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border-radius: 2px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body class="p-0 pb-20">
+    <!-- 顶部栏 -->
+    <div class="flex justify-between items-center p-4 relative z-10">
+        <button class="text-gray-500 flex items-center">
+            <i class="bi bi-chevron-left text-2xl"></i>
+        </button>
+        <div class="flex space-x-3">
+            <button class="btn-outline text-sm">
+                保存草稿
+            </button>
+            <button class="btn-primary text-sm flex items-center">
+                <i class="bi bi-check2 mr-1"></i>
+                发布
+            </button>
+        </div>
+    </div>
+
+    <!-- 日期显示 -->
+    <div class="mb-6 text-center">
+        <p class="text-gray-500 flex items-center justify-center">
+            <i class="bi bi-calendar3 mr-1"></i>
+            2023年10月15日 星期日
+        </p>
+        <p class="text-gray-400 text-sm flex items-center justify-center mt-1">
+            <i class="bi bi-sun mr-1"></i>
+            晴 21°C
+        </p>
+    </div>
+    
+    <div class="paper mx-4 p-4 rounded-xl mb-6">
+        <!-- 标题输入 -->
+        <input type="text" placeholder="给今天的日记取个标题吧..." class="w-full text-xl font-medium mb-4 p-2 border-b border-gray-100 focus:outline-none bg-transparent">
+
+        <!-- 富文本编辑区 -->
+        <div class="mb-2 relative">
+            <!-- 装饰元素 - 曲别针 -->
+            <div class="absolute -right-2 -top-6 w-8 h-8 transform rotate-12">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9.5 7V15.5C9.5 17.7091 11.2909 19.5 13.5 19.5C15.7091 19.5 17.5 17.7091 17.5 15.5V6C17.5 3.79086 15.7091 2 13.5 2C11.2909 2 9.5 3.79086 9.5 6" stroke="rgba(170, 119, 242, 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6.5 7V15C6.5 17.2091 8.29086 19 10.5 19C12.7091 19 14.5 17.2091 14.5 15V7" stroke="rgba(244, 114, 182, 0.7)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <textarea class="editor-area w-full" placeholder="记录下你的想法和感受...
+            
+今天发生了什么有趣的事情？
+有什么让你开心或感动的瞬间？
+遇到了什么挑战，你是如何面对的？"></textarea>
+        </div>
+    </div>
+
+    <!-- 情绪选择 -->
+    <div class="mx-4 mb-6">
+        <h3 class="decorated-header text-gray-500 mb-3">今天的心情如何？</h3>
+        <div class="flex flex-wrap gap-2">
+            <button class="emotion-tag active" style="background: rgba(74, 222, 128, 0.15); color: #22c55e;">
+                <i class="bi bi-emoji-smile mr-1"></i>开心
+            </button>
+            <button class="emotion-tag" style="background: rgba(125, 125, 125, 0.1); color: #6b7280;">
+                <i class="bi bi-emoji-neutral mr-1"></i>平静
+            </button>
+            <button class="emotion-tag" style="background: rgba(96, 165, 250, 0.1); color: #3b82f6;">
+                <i class="bi bi-emoji-frown mr-1"></i>沮丧
+            </button>
+            <button class="emotion-tag" style="background: rgba(248, 113, 113, 0.1); color: #ef4444;">
+                <i class="bi bi-emoji-angry mr-1"></i>生气
+            </button>
+            <button class="emotion-tag" style="background: rgba(251, 189, 35, 0.1); color: #f59e0b;">
+                <i class="bi bi-emoji-dizzy mr-1"></i>疲惫
+            </button>
+            <button class="emotion-tag" style="background: rgba(192, 132, 252, 0.05); color: #a855f7;">
+                <i class="bi bi-plus mr-1"></i>添加
+            </button>
+        </div>
+    </div>
+
+    <!-- 写作提示 -->
+    <div class="mx-4 tooltip-card bg-gradient-to-br from-indigo-50 to-pink-50 p-4 rounded-lg mb-5 border border-purple-100">
+        <div class="flex items-center mb-2">
+            <i class="bi bi-lightbulb text-yellow-500 mr-2"></i>
+            <h3 class="font-medium">写作提示</h3>
+        </div>
+        <p class="text-gray-700 text-sm">
+            今天有什么让你感到开心或有收获的事情？这些事情对你意味着什么？
+        </p>
+        <div class="mt-2 flex justify-end">
+            <button class="text-purple-500 text-xs flex items-center">
+                <i class="bi bi-shuffle mr-1"></i>
+                换一个提示
+            </button>
+        </div>
+    </div>
+
+    <!-- 主题标签 -->
+    <div class="mx-4 mb-6">
+        <h3 class="decorated-header text-gray-500 mb-3">添加主题标签</h3>
+        <div class="flex flex-wrap gap-2">
+            <button class="emotion-tag active" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+                工作
+            </button>
+            <button class="emotion-tag" style="background: rgba(125, 125, 125, 0.1); color: #6b7280;">
+                学习
+            </button>
+            <button class="emotion-tag" style="background: rgba(125, 125, 125, 0.1); color: #6b7280;">
+                旅行
+            </button>
+            <button class="emotion-tag" style="background: rgba(125, 125, 125, 0.1); color: #6b7280;">
+                生活
+            </button>
+            <button class="emotion-tag" style="background: rgba(192, 132, 252, 0.05); color: #a855f7;">
+                <i class="bi bi-plus mr-1"></i>添加
+            </button>
+        </div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-3 py-3" style="box-shadow: 0 -2px 10px rgba(0,0,0,0.03);">
+        <div class="flex justify-between items-center">
+            <div class="flex space-x-6">
+                <button class="text-gray-500 hover:text-purple-500 transition-colors">
+                    <i class="bi bi-image text-xl"></i>
+                </button>
+                <button class="text-gray-500 hover:text-purple-500 transition-colors">
+                    <i class="bi bi-mic text-xl"></i>
+                </button>
+                <button class="text-gray-500 hover:text-purple-500 transition-colors">
+                    <i class="bi bi-type-bold text-xl"></i>
+                </button>
+                <button class="text-gray-500 hover:text-purple-500 transition-colors">
+                    <i class="bi bi-list-ul text-xl"></i>
+                </button>
+            </div>
+            <div class="flex items-center">
+                <span class="text-gray-400 text-sm px-3 py-1 rounded-full bg-gray-50">0 字</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

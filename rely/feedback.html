@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反馈界面</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #AA77F2;
+            --primary-light: #E5DBFF;
+            --secondary-color: #F472B6;
+            --secondary-light: #FDE2F3;
+            --warm-bg: #FDFAF6;
+            --card-bg: #FFFFFF;
+            --text-primary: #453C67;
+            --text-secondary: #6D6A80;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--warm-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(235, 227, 252, 0.8);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .message-bubble {
+            position: relative;
+            border-radius: 18px;
+            max-width: 85%;
+        }
+        
+        .message-future {
+            background-color: rgba(233, 225, 255, 0.5);
+            color: var(--text-primary);
+            border: 1px solid rgba(170, 119, 242, 0.2);
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(170, 119, 242, 0.07);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        
+        .message-future::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: -8px;
+            width: 16px;
+            height: 16px;
+            background: inherit;
+            transform: rotate(45deg);
+            border-left: 1px solid rgba(170, 119, 242, 0.2);
+            border-bottom: 1px solid rgba(170, 119, 242, 0.2);
+        }
+        
+        .message-user {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 16px;
+            box-shadow: 0 2px 8px rgba(170, 119, 242, 0.2);
+        }
+        
+        .message-user::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            right: -8px;
+            width: 16px;
+            height: 16px;
+            background: inherit;
+            transform: rotate(45deg);
+        }
+        
+        .avatar {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .avatar-future {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .deco-circle {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(170, 119, 242, 0.2), rgba(244, 114, 182, 0.2));
+            border-radius: 50%;
+            filter: blur(20px);
+            pointer-events: none;
+        }
+        
+        .tip-card {
+            position: relative;
+            background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.9));
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(170, 119, 242, 0.15);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(170, 119, 242, 0.08);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(170, 119, 242, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .floating-btn {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        
+        .badge-green {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: #22c55e;
+        }
+        
+        .decorated-link {
+            position: relative;
+            display: inline-block;
+            color: var(--primary-color);
+            font-weight: 500;
+            overflow: hidden;
+        }
+        
+        .decorated-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .decorated-link:hover::after {
+            transform: translateX(0);
+        }
+        
+        .diary-card {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .diary-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, transparent 50%, rgba(244, 114, 182, 0.1) 50%);
+            border-radius: 0 16px 0 16px;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="p-4 pb-20 relative">
+    <!-- 装饰元素 -->
+    <div class="deco-circle" style="width: 150px; height: 150px; top: -60px; right: -60px; opacity: 0.15; z-index: 0;"></div>
+    <div class="deco-circle" style="width: 100px; height: 100px; bottom: 30%; left: -40px; opacity: 0.1; z-index: 0;"></div>
+    
+    <!-- 顶部栏 -->
+    <div class="flex justify-between items-center mb-6 relative z-10">
+        <button class="text-gray-500 flex items-center">
+            <i class="bi bi-chevron-left text-2xl"></i>
+        </button>
+        <h1 class="text-lg font-medium">来自未来的你</h1>
+        <button class="text-gray-500">
+            <i class="bi bi-three-dots-vertical text-xl"></i>
+        </button>
+    </div>
+
+    <!-- 日记摘要卡片 -->
+    <div class="card diary-card p-4 mb-5">
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-gray-500 text-sm flex items-center">
+                <i class="bi bi-calendar-event mr-1"></i>
+                10月14日 19:30
+            </p>
+            <span class="badge badge-green">开心</span>
+        </div>
+        <h2 class="font-medium mb-2">今天见到了老朋友</h2>
+        <p class="text-gray-600 text-sm mb-3 line-clamp-3">
+            下午和小学同学小李在咖啡馆见面，聊了很多过去的事情。虽然工作忙碌，但能抽时间见面真的很开心。我们聊了很多年少时的趣事，也交流了各自的工作和生活状况...
+        </p>
+        <div class="flex justify-end">
+            <button class="text-sm decorated-link flex items-center">
+                <i class="bi bi-eye mr-1"></i>
+                查看全文
+            </button>
+        </div>
+    </div>
+
+    <!-- 对话区域 -->
+    <div class="space-y-4 mb-20">
+        <!-- 系统消息 -->
+        <div class="text-center text-xs text-gray-500 my-4 flex justify-center items-center">
+            <span class="h-[1px] bg-gray-200 flex-grow max-w-[100px]"></span>
+            <span class="px-3">未来的你正在回应你的日记...</span>
+            <span class="h-[1px] bg-gray-200 flex-grow max-w-[100px]"></span>
+        </div>
+
+        <!-- 未来的你消息 -->
+        <div class="flex justify-start mb-5">
+            <div class="flex items-start">
+                <div class="w-9 h-9 avatar avatar-future mr-2">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div>
+                    <div class="message-bubble message-future">
+                        <p>
+                            友谊是需要维护的，很高兴看到你主动联系了老朋友。这些年来，你会发现这些珍贵的情谊会成为你生活中重要的支持。
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-400 ml-2 mt-1">10月15日 09:15</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 未来的你消息 2 -->
+        <div class="flex justify-start mb-5">
+            <div class="flex items-start">
+                <div class="w-9 h-9 avatar avatar-future mr-2">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div>
+                    <div class="message-bubble message-future">
+                        <p>
+                            我注意到你提到"工作忙碌"，从长远来看，这种平衡工作与社交的能力对你的整体幸福感非常重要。建议你可以建立定期联系的习惯，不必很频繁，但要有规律。
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-400 ml-2 mt-1">10月15日 09:17</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 用户回复 -->
+        <div class="flex justify-end mb-5">
+            <div>
+                <div class="message-bubble message-user">
+                    <p>
+                        你觉得我应该多久联系一次老朋友合适呢？
+                    </p>
+                </div>
+                <p class="text-xs text-gray-400 ml-2 mt-1 text-right mr-2">10月15日 09:20</p>
+            </div>
+        </div>
+
+        <!-- 未来的你消息 3 -->
+        <div class="flex justify-start mb-2">
+            <div class="flex items-start">
+                <div class="w-9 h-9 avatar avatar-future mr-2">
+                    <i class="bi bi-person"></i>
+                </div>
+                <div>
+                    <div class="message-bubble message-future">
+                        <p>
+                            根据我对你生活节奏的了解，每1-2个月进行一次简短的联系是比较合适的。可以是一条信息、一个电话，或者季度性的见面。记住，保持联系的质量比频率更重要。你们的友谊已经证明了它能经受时间的考验。
+                        </p>
+                    </div>
+                    <p class="text-xs text-gray-400 ml-2 mt-1">10月15日 09:23</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 提示卡片 -->
+        <div class="tip-card p-4 mt-8">
+            <div class="flex items-center mb-2">
+                <i class="bi bi-lightbulb text-yellow-500 mr-2"></i>
+                <h3 class="font-medium text-sm">提示</h3>
+            </div>
+            <p class="text-gray-600 text-xs">
+                "未来的你"的建议基于你的历史记录和个人特点生成，仅供参考。你可以随时调整"未来的你"的回应风格。
+            </p>
+            <div class="mt-2 flex justify-end">
+                <button class="text-sm decorated-link flex items-center">
+                    <i class="bi bi-sliders mr-1"></i>
+                    调整设置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部输入框 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3" style="box-shadow: 0 -2px 10px rgba(0,0,0,0.03);">
+        <div class="flex items-center">
+            <button class="text-gray-500 mr-3 hover:text-purple-500 transition-colors">
+                <i class="bi bi-plus-circle text-xl"></i>
+            </button>
+            <input type="text" placeholder="继续对话..." class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-purple-300 focus:ring-1 focus:ring-purple-200">
+            <button class="ml-3 w-10 h-10 rounded-full flex items-center justify-center shadow-sm" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                <i class="bi bi-send text-white"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 反馈功能浮动按钮 -->
+    <div class="fixed bottom-20 right-4">
+        <div class="bg-white rounded-full p-2 shadow-lg flex space-x-1">
+            <button class="w-9 h-9 bg-green-100 text-green-600 rounded-full flex items-center justify-center floating-btn border border-green-200">
+                <i class="bi bi-hand-thumbs-up"></i>
+            </button>
+            <button class="w-9 h-9 bg-gray-100 text-gray-600 rounded-full flex items-center justify-center floating-btn border border-gray-200">
+                <i class="bi bi-hand-thumbs-down"></i>
+            </button>
+        </div>
+    </div>
+</body>
+</html> 

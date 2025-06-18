@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页/仪表盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #AA77F2;
+            --primary-light: #E5DBFF;
+            --secondary-color: #F472B6;
+            --secondary-light: #FDE2F3;
+            --warm-bg: #FDFAF6;
+            --card-bg: #FFFFFF;
+            --text-primary: #453C67;
+            --text-secondary: #6D6A80;
+            --accent-green: #4ade80;
+            --accent-yellow: #fbbf24;
+            --accent-red: #f87171;
+        }
+        
+        body {
+            font-family: 'Noto Sans SC', "PingFang SC", "Microsoft YaHei", sans-serif;
+            background-color: var(--warm-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(235, 227, 252, 0.8);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 20px rgba(170, 119, 242, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 999px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(170, 119, 242, 0.2);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(170, 119, 242, 0.3);
+        }
+        
+        .emotion-bar {
+            height: 100%;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        
+        .badge-green {
+            background-color: rgba(74, 222, 128, 0.15);
+            color: var(--accent-green);
+        }
+        
+        .avatar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-item i {
+            margin-bottom: 0.25rem;
+            font-size: 1.25rem;
+        }
+        
+        .gradient-box {
+            background: linear-gradient(to right bottom, rgba(170, 119, 242, 0.05), rgba(244, 114, 182, 0.05));
+            border: 1px solid rgba(235, 227, 252, 0.8);
+        }
+        
+        /* Decorative elements */
+        .deco-pattern {
+            position: absolute;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+        
+        .deco-circle {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(170, 119, 242, 0.2), rgba(244, 114, 182, 0.2));
+            border-radius: 50%;
+            filter: blur(20px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="p-4 relative">
+    <!-- 装饰元素 -->
+    <div class="deco-circle" style="width: 150px; height: 150px; top: -50px; right: -50px; opacity: 0.3;"></div>
+    <div class="deco-circle" style="width: 100px; height: 100px; bottom: 30%; left: -30px; opacity: 0.2;"></div>
+    
+    <!-- 顶部栏 -->
+    <div class="flex justify-between items-center mb-6 relative z-10">
+        <div>
+            <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-500">你好，小明</h1>
+            <p class="text-gray-500">2023年10月15日 星期日</p>
+        </div>
+        <div class="flex space-x-3">
+            <button class="w-10 h-10 rounded-full bg-primary-50 text-primary-500 flex items-center justify-center shadow-sm" style="background: rgba(170, 119, 242, 0.1); color: var(--primary-color);">
+                <i class="bi bi-bell text-xl"></i>
+            </button>
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm overflow-hidden border-2" style="border-color: rgba(170, 119, 242, 0.3);">
+                <img src="https://via.placeholder.com/40" alt="用户头像" class="w-full h-full rounded-full">
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷写日记入口 -->
+    <div class="card p-4 mb-5 flex items-center relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-24 h-24 opacity-10">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="flex-1">
+            <h2 class="font-medium">今天过得怎么样？</h2>
+            <p class="text-gray-500 text-sm">记录你的心情和感受</p>
+        </div>
+        <button class="btn-primary flex items-center">
+            <i class="bi bi-pencil-fill mr-1 text-sm"></i>
+            写日记
+        </button>
+    </div>
+
+    <!-- 心情趋势图表 -->
+    <div class="card p-4 mb-5">
+        <h2 class="font-medium mb-2 flex items-center">
+            <i class="bi bi-graph-up text-purple-500 mr-2"></i>
+            心情趋势
+        </h2>
+        <div class="h-36 w-full bg-gray-50 rounded-lg flex items-end p-2" style="background: rgba(250, 245, 255, 0.5);">
+            <!-- 简化的心情图表 -->
+            <div class="flex-1 flex items-end justify-around">
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-20 w-6 bg-green-400"></div>
+                    <span class="text-xs text-gray-500 mt-1">周一</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-24 w-6 bg-green-500"></div>
+                    <span class="text-xs text-gray-500 mt-1">周二</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-16 w-6 bg-yellow-400"></div>
+                    <span class="text-xs text-gray-500 mt-1">周三</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-8 w-6 bg-red-400"></div>
+                    <span class="text-xs text-gray-500 mt-1">周四</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-12 w-6 bg-yellow-400"></div>
+                    <span class="text-xs text-gray-500 mt-1">周五</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-28 w-6 bg-green-500"></div>
+                    <span class="text-xs text-gray-500 mt-1">周六</span>
+                </div>
+                <div class="w-8 flex flex-col items-center">
+                    <div class="emotion-bar h-22 w-6 bg-green-400"></div>
+                    <span class="text-xs text-gray-500 mt-1">周日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 最近日记 -->
+    <h2 class="font-medium mb-3 flex items-center">
+        <i class="bi bi-journal-text text-pink-500 mr-2"></i>
+        最近日记
+    </h2>
+    <div class="card p-4 mb-4 relative overflow-hidden">
+        <div class="absolute -right-2 -top-2 w-16 h-16 rotate-12 opacity-5">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 9.34784 20.9464 6.8043 19.0711 4.92893C17.1957 3.05357 14.6522 2 12 2ZM12 20C7.58172 20 4 16.4183 4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20Z"/>
+                <path d="M12 17.5C14.7614 17.5 17 15.2614 17 12.5H14.5C14.5 13.8807 13.3807 15 12 15C10.6193 15 9.5 13.8807 9.5 12.5C9.5 11.1193 10.6193 10 12 10V7.5C9.23858 7.5 7 9.73858 7 12.5C7 15.2614 9.23858 17.5 12 17.5Z"/>
+                <path d="M14.5 8.5C14.5 9.32843 13.8284 10 13 10C12.1716 10 11.5 9.32843 11.5 8.5C11.5 7.67157 12.1716 7 13 7C13.8284 7 14.5 7.67157 14.5 8.5Z"/>
+            </svg>
+        </div>
+        <div class="flex justify-between items-center mb-2">
+            <p class="text-gray-500 text-sm flex items-center">
+                <i class="bi bi-calendar-event mr-1"></i>
+                10月14日 19:30
+            </p>
+            <span class="badge badge-green">开心</span>
+        </div>
+        <h3 class="font-medium">今天见到了老朋友</h3>
+        <p class="text-gray-600 text-sm mt-1 line-clamp-2">
+            下午和小学同学小李在咖啡馆见面，聊了很多过去的事情。虽然工作忙碌，但能抽时间见面真的很开心...
+        </p>
+    </div>
+
+    <!-- "未来的你"反馈 -->
+    <div class="card p-4 mb-4 relative overflow-hidden" style="background: linear-gradient(to right bottom, rgba(170, 119, 242, 0.08), rgba(244, 114, 182, 0.08));">
+        <div class="absolute -right-8 -top-8 w-24 h-24 opacity-10">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4.5 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM14.25 8.625a3.375 3.375 0 116.75 0 3.375 3.375 0 01-6.75 0zM1.5 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM17.25 19.128l-.001.144a2.25 2.25 0 01-.233.96 10.088 10.088 0 005.06-1.01.75.75 0 00.42-.643 4.875 4.875 0 00-6.957-4.611 8.586 8.586 0 011.71 5.157v.003z" />
+            </svg>
+        </div>
+        <div class="flex items-center mb-3">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center mr-3 gradient-avatar" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));">
+                <i class="bi bi-person text-xl text-white"></i>
+            </div>
+            <div>
+                <h3 class="font-medium">来自未来的你</h3>
+                <p class="text-xs text-gray-500">对"今天见到了老朋友"的反馈</p>
+            </div>
+        </div>
+        <p class="text-gray-700 text-sm italic relative">
+            <i class="bi bi-quote absolute -left-1 -top-1 text-purple-200 text-lg"></i>
+            友谊是需要维护的，很高兴看到你主动联系了老朋友。这些年来，你会发现这些珍贵的情谊会成为你生活中重要的支持。建议你可以建立定期联系的习惯。
+        </p>
+        <div class="mt-3 flex justify-end">
+            <button class="text-sm font-medium flex items-center" style="color: var(--primary-color);">
+                <i class="bi bi-chat-dots-fill mr-1"></i>
+                查看详情
+            </button>
+        </div>
+    </div>
+
+    <!-- 记忆回顾 -->
+    <div class="card p-4 relative overflow-hidden">
+        <div class="absolute right-0 bottom-0 w-20 h-20 opacity-5 transform rotate-12">
+            <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 5v2h-4V5h4M9 5v6H5V5h4m10 8v6h-4v-6h4M9 17v2H5v-2h4M21 3h-8v6h8V3zM11 3H3v10h8V3zm10 8h-8v10h8V11zm-10 4H3v6h8v-6z"/>
+            </svg>
+        </div>
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-medium flex items-center">
+                <i class="bi bi-calendar-heart text-pink-500 mr-2"></i>
+                一年前的今天
+            </h3>
+            <span class="text-xs px-2 py-1 rounded-full" style="background: rgba(244, 114, 182, 0.1); color: var(--secondary-color);">珍贵回忆</span>
+        </div>
+        <p class="text-gray-600 text-sm">
+            去年这一天，你记录了第一次独自旅行的经历，那次旅行让你对生活有了新的认识...
+        </p>
+        <div class="mt-3 flex justify-end">
+            <button class="text-sm font-medium flex items-center" style="color: var(--secondary-color);">
+                <i class="bi bi-clock-history mr-1"></i>
+                回顾往事
+            </button>
+        </div>
+    </div>
+
+    <!-- 底部导航栏 -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 flex justify-around" style="box-shadow: 0 -2px 10px rgba(0,0,0,0.03);">
+        <a href="#" class="nav-item" style="color: var(--primary-color);">
+            <i class="bi bi-house-door-fill"></i>
+            <span>首页</span>
+        </a>
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-calendar-week"></i>
+            <span>时间线</span>
+        </a>
+        <a href="#" class="nav-item flex flex-col items-center">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center mb-1" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); margin-top: -20px; box-shadow: 0 4px 10px rgba(170, 119, 242, 0.3);">
+                <i class="bi bi-plus text-white text-2xl"></i>
+            </div>
+            <span class="text-gray-400 -mt-1">写日记</span>
+        </a>
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-lightbulb"></i>
+            <span>决策</span>
+        </a>
+        <a href="#" class="nav-item text-gray-400">
+            <i class="bi bi-person"></i>
+            <span>我的</span>
+        </a>
+    </div>
+</body>
+</html> 
