@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟时间旅行日记 - 与未来的自己对话</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 全局样式 */
+        :root {
+            --primary: #7e57c2;
+            --primary-light: #b085f5;
+            --primary-dark: #4d2c91;
+            --secondary: #ff9800;
+            --secondary-light: #ffc947;
+            --text: #333;
+            --text-light: #666;
+            --bg: #f5f5f5;
+            --card-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Noto Sans', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8f5 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 300px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            z-index: -1;
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 0 100%);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            margin-bottom: 20px;
+            position: relative;
+            color: white;
+        }
+        
+        .logo {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: white;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        /* 主布局 */
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 25px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-title i {
+            color: var(--secondary);
+        }
+        
+        /* 侧边栏 */
+        .sidebar .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* 人格设置 */
+        .personality-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .personality-option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            text-align: left;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .personality-option:hover {
+            border-color: var(--primary-light);
+            background: rgba(126, 87, 194, 0.05);
+        }
+        
+        .personality-option.active {
+            border-color: var(--primary);
+            background: rgba(126, 87, 194, 0.1);
+            box-shadow: 0 4px 8px rgba(126, 87, 194, 0.15);
+        }
+        
+        .personality-option i {
+            font-size: 1.8rem;
+            min-width: 40px;
+            text-align: center;
+            color: var(--primary);
+        }
+        
+        .personality-option h3 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .personality-option p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        /* 心情选择器 */
+        .mood-selector {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+        
+        .mood-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+        
+        .moods {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .mood-option {
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px;
+            border-radius: 8px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .mood-option:hover {
+            background: rgba(126, 87, 194, 0.1);
+        }
+        
+        .mood-option.active {
+            background: rgba(126, 87, 194, 0.2);
+        }
+        
+        .mood-option i {
+            font-size: 1.8rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* 日记输入 */
+        .journal-textarea {
+            width: 100%;
+            height: 180px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            transition: var(--transition);
+            margin-bottom: 15px;
+        }
+        
+        .journal-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+        }
+        
+        .templates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .template {
+            background: #f0f0f0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .template:hover {
+            background: var(--primary-light);
+            color: white;
+        }
+        
+        /* 按钮 */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: #bdbdbd;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn .spinner {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+        
+        .btn.saving .spinner {
+            display: inline-block;
+        }
+        
+        .btn.saving .text {
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 反馈卡片 */
+        .feedback-card {
+            background: linear-gradient(135deg, #fff8e1 0%, #fff3e0 100%);
+            border-left: 5px solid var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feedback-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 152, 0, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .feedback-title {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+        
+        .feedback-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .feedback-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 2;
+            min-height: 120px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .feedback-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .action-btn.more {
+            background: #e3f2fd;
+            color: var(--primary);
+        }
+        
+        .action-btn.more:hover {
+            background: #bbdefb;
+        }
+        
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .rating-text {
+            font-weight: 500;
+            color: var(--text-light);
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .rating-stars i {
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+        
+        .rating-stars i.active {
+            color: var(--secondary);
+        }
+        
+        .feedback-type {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 152, 0, 0.15);
+            color: var(--secondary);
+        }
+        
+        /* 历史日记 */
+        .history-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .history-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .history-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        
+        .history-date {
+            font-weight: 600;
+            color: var(--primary);
+            min-width: 70px;
+        }
+        
+        .history-preview {
+            flex: 1;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        
+        .history-mood i {
+            color: var(--secondary);
+        }
+        
+        /* 功能模块 */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(126, 87, 194, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .personality-selector {
+                flex-direction: column;
+            }
+            
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .moods {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .mood-option {
+                flex: 1;
+                min-width: 60px;
+            }
+            
+            .feedback-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .rating {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <h1>虚拟时间旅行日记</h1>
+            <p class="subtitle">连接过去、现在与未来的自己，做出更明智的人生选择</p>
+        </header>
+        
+        <!-- 功能亮点展示 -->
+        <div class="card">
+            <h2 class="card-title"><i class="fas fa-star"></i> 核心功能亮点</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>未来对话</h3>
+                    <p>与AI模拟的"未来的你"进行深度对话</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>个性化模型</h3>
+                    <p>基于你的性格和价值观定制反馈</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>记忆连接</h3>
+                    <p>智能关联历史日记内容</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>私密社交</h3>
+                    <p>与好友的安全互动</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="app-container">
+            <div class="main-content">
+                <!-- 日记记录区域 -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-book"></i> 记录此刻</h2>
+                    
+                    <div class="mood-selector">
+                        <div class="mood-label">
+                            <span>你今天的心情如何？</span>
+                            <span id="mood-label">一般</span>
+                        </div>
+                        <input type="range" id="mood-slider" min="1" max="5" value="3" step="1">
+                        <div class="moods">
+                            <div class="mood-option" data-value="1">
+                                <i class="fas fa-sad-tear"></i>
+                                <span>低落</span>
+                            </div>
+                            <div class="mood-option" data-value="2">
+                                <i class="fas fa-frown"></i>
+                                <span>不佳</span>
+                            </div>
+                            <div class="mood-option active" data-value="3">
+                                <i class="fas fa-meh"></i>
+                                <span>一般</span>
+                            </div>
+                            <div class="mood-option" data-value="4">
+                                <i class="fas fa-smile"></i>
+                                <span>良好</span>
+                            </div>
+                            <div class="mood-option" data-value="5">
+                                <i class="fas fa-laugh"></i>
+                                <span>极好</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <textarea class="journal-textarea" placeholder="分享你的想法、经历或感受..."></textarea>
+                    
+                    <p style="margin-bottom: 10px; color: var(--text-light);">快速模板：</p>
+                    <div class="templates">
+                        <div class="template">今天最让我感恩的三件事...</div>
+                        <div class="template">我面临的最大挑战是...</div>
+                        <div class="template">如果五年后的我看到今天，会说什么...</div>
+                        <div class="template">今天学到的重要一课...</div>
+                        <div class="template">此刻最真实的感受...</div>
+                    </div>
+                    
+                    <button id="save-btn" class="btn">
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="text">保存日记并与未来对话</span>
+                        <i class="fas fa-spinner spinner"></i>
+                    </button>
+                </div>
+                
+                <!-- 反馈展示区域 -->
+                <div id="feedback-section" class="card feedback-card" style="display: none;">
+                    <div class="feedback-header">
+                        <div class="feedback-icon">
+                            <i class="fas fa-hourglass-half"></i>
+                        </div>
+                        <h2 class="feedback-title">来自未来的反馈</h2>
+                    </div>
+                    
+                    <div class="feedback-content">
+                        <div class="feedback-type">思考引导型</div>
+                        <div id="feedback-text">未来的你正在思考并生成反馈...</div>
+                    </div>
+                    
+                    <div class="feedback-actions">
+                        <button class="action-btn more">
+                            <i class="fas fa-comment-dots"></i> 深入探讨
+                        </button>
+                        
+                        <div class="rating">
+                            <span class="rating-text">反馈有用吗？</span>
+                            <div class="rating-stars">
+                                <i class="far fa-star" data-value="1"></i>
+                                <i class="far fa-star" data-value="2"></i>
+                                <i class="far fa-star" data-value="3"></i>
+                                <i class="far fa-star" data-value="4"></i>
+                                <i class="far fa-star" data-value="5"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <!-- 人格设置 -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-user-astronaut"></i> 未来人格设置</h2>
+                    <p style="margin-bottom: 20px; color: var(--text-light);">选择你希望未来的你以何种方式与你交流：</p>
+                    
+                    <div class="personality-selector">
+                        <div class="personality-option active" data-type="encouraging">
+                            <i class="fas fa-hands-helping"></i>
+                            <div>
+                                <h3>鼓励型</h3>
+                                <p>温暖、支持、积极肯定</p>
+                            </div>
+                        </div>
+                        <div class="personality-option" data-type="analytical">
+                            <i class="fas fa-chart-line"></i>
+                            <div>
+                                <h3>分析型</h3>
+                                <p>理性、逻辑、数据驱动</p>
+                            </div>
+                        </div>
+                        <div class="personality-option" data-type="direct">
+                            <i class="fas fa-bullseye"></i>
+                            <div>
+                                <h3>直接型</h3>
+                                <p>简洁、务实、行动导向</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #eee;">
+                        <h3 style="font-size: 1.1rem; margin-bottom: 10px; color: var(--primary);">
+                            <i class="fas fa-sliders-h"></i> 高级设置
+                        </h3>
+                        <p style="font-size: 0.9rem; color: var(--text-light);">
+                            反馈深度: <strong>中等</strong> | 互动频率: <strong>每日</strong>
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 历史日记 -->
+                <div class="card">
+                    <h2 class="card-title"><i class="fas fa-history"></i> 最近日记</h2>
+                    
+                    <div class="history-list" id="history-list">
+                        <div class="history-item">
+                            <div class="history-date">6月3日</div>
+                            <div class="history-preview">今天项目取得了重大突破，团队合作非常顺利...</div>
+                            <div class="history-mood"><i class="fas fa-laugh"></i></div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-date">6月2日</div>
+                            <div class="history-preview">遇到了一些技术难题，需要重新思考解决方案...</div>
+                            <div class="history-mood"><i class="fas fa-frown"></i></div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-date">6月1日</div>
+                            <div class="history-preview">儿童节带孩子们去了公园，看到他们的笑容...</div>
+                            <div class="history-mood"><i class="fas fa-smile"></i></div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-date">5月31日</div>
+                            <div class="history-preview">月度总结会议，对下个月的工作计划进行了...</div>
+                            <div class="history-mood"><i class="fas fa-meh"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>虚拟时间旅行日记 - 基于AI的未来自我模拟技术 | 版本 1.0.0</p>
+            <p>© 2025 DeepSeek 深度求索 - 探索人生无限可能</p>
+        </footer>
+    </div>
+    
+    <script>
+        // ===========================================
+        // 应用核心功能模块
+        // ===========================================
+        
+        // DOM 元素
+        const moodSlider = document.getElementById('mood-slider');
+        const moodLabel = document.getElementById('mood-label');
+        const moodOptions = document.querySelectorAll('.mood-option');
+        const personalityOptions = document.querySelectorAll('.personality-option');
+        const journalTextarea = document.querySelector('.journal-textarea');
+        const templates = document.querySelectorAll('.template');
+        const saveBtn = document.getElementById('save-btn');
+        const feedbackSection = document.getElementById('feedback-section');
+        const feedbackText = document.getElementById('feedback-text');
+        const ratingStars = document.querySelectorAll('.rating-stars i');
+        
+        // 当前状态
+        let currentPersonality = 'encouraging';
+        let currentMood = 3;
+        
+        // ===========================================
+        // 用户设置模块
+        // ===========================================
+        
+        // 心情设置
+        moodSlider.addEventListener('input', () => {
+            currentMood = parseInt(moodSlider.value);
+            updateMoodLabel();
+            updateMoodSelection();
+        });
+        
+        moodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                currentMood = parseInt(option.dataset.value);
+                moodSlider.value = currentMood;
+                updateMoodLabel();
+                updateMoodSelection();
+            });
+        });
+        
+        /**
+         * 更新心情标签文本
+         * @function
+         */
+        function updateMoodLabel() {
+            const moods = ['低落', '不佳', '一般', '良好', '极好'];
+            moodLabel.textContent = moods[currentMood - 1];
+        }
+        
+        /**
+         * 更新心情选择UI
+         * @function
+         */
+        function updateMoodSelection() {
+            moodOptions.forEach(option => {
+                option.classList.remove('active');
+                if (parseInt(option.dataset.value) === currentMood) {
+                    option.classList.add('active');
+                }
+            });
+        }
+        
+        // 人格设置
+        personalityOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                personalityOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                currentPersonality = option.dataset.type;
+                // 更新用户偏好（API调用）
+                updateUserPreference({ communication_style: currentPersonality });
+            });
+        });
+        
+        /**
+         * 更新用户偏好设置（API调用）
+         * @function
+         * @param {Object} preferences - 用户偏好设置
+         */
+        function updateUserPreference(preferences) {
+            // 实际应用中应调用后端API
+            console.log("更新用户偏好设置:", preferences);
+            // API示例：fetch('/api/user/preferences', {
+            //   method: 'POST',
+            //   body: JSON.stringify(preferences)
+            // })
+        }
+        
+        // ===========================================
+        // 日记记录模块
+        // ===========================================
+        
+        // 模板选择
+        templates.forEach(template => {
+            template.addEventListener('click', () => {
+                journalTextarea.value = template.textContent;
+            });
+        });
+        
+        // 保存日记并生成反馈
+        saveBtn.addEventListener('click', () => {
+            const content = journalTextarea.value.trim();
+            
+            if (!content) {
+                alert('请输入日记内容');
+                return;
+            }
+            
+            // 显示加载状态
+            saveBtn.classList.add('saving');
+            saveBtn.disabled = true;
+            
+            // 创建日记对象
+            const journalEntry = {
+                content,
+                mood: currentMood,
+                date: new Date().toISOString(),
+                tags: []
+            };
+            
+            // 保存日记到本地存储（模拟API）
+            saveJournalEntry(journalEntry);
+            
+            // 模拟API延迟
+            setTimeout(() => {
+                // 生成反馈
+                const feedback = generateFeedback(journalEntry, currentPersonality);
+                
+                // 显示反馈
+                feedbackText.innerHTML = feedback.content;
+                document.querySelector('.feedback-type').textContent = feedback.type;
+                feedbackSection.style.display = 'block';
+                
+                // 滚动到反馈部分
+                feedbackSection.scrollIntoView({ behavior: 'smooth' });
+                
+                // 重置按钮状态
+                saveBtn.classList.remove('saving');
+                saveBtn.disabled = false;
+            }, 2000);
+        });
+        
+        /**
+         * 保存日记条目（API调用）
+         * @function
+         * @param {Object} entry - 日记条目对象
+         */
+        function saveJournalEntry(entry) {
+            // 实际应用中应调用后端API
+            console.log("保存日记:", entry);
+            // API示例：fetch('/api/journals', {
+            //   method: 'POST',
+            //   body: JSON.stringify(entry)
+            // })
+            
+            // 更新历史日记列表
+            addToHistory(entry);
+        }
+        
+        /**
+         * 添加日记到历史列表
+         * @function
+         * @param {Object} entry - 日记条目对象
+         */
+        function addToHistory(entry) {
+            const historyList = document.getElementById('history-list');
+            const date = new Date(entry.date);
+            const formattedDate = `${date.getMonth()+1}月${date.getDate()}日`;
+            
+            // 创建历史条目元素
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <div class="history-date">${formattedDate}</div>
+                <div class="history-preview">${entry.content.substring(0, 30)}...</div>
+                <div class="history-mood">${getMoodIcon(entry.mood)}</div>
+            `;
+            
+            // 添加到列表顶部
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            // 限制历史条目数量
+            if (historyList.children.length > 5) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+        
+        /**
+         * 获取心情图标
+         * @function
+         * @param {number} moodValue - 心情值 (1-5)
+         * @returns {string} 心情图标HTML
+         */
+        function getMoodIcon(moodValue) {
+            const icons = [
+                '<i class="fas fa-sad-tear"></i>',
+                '<i class="fas fa-frown"></i>',
+                '<i class="fas fa-meh"></i>',
+                '<i class="fas fa-smile"></i>',
+                '<i class="fas fa-laugh"></i>'
+            ];
+            return icons[moodValue - 1];
+        }
+        
+        // ===========================================
+        // 反馈生成模块
+        // ===========================================
+        
+        // 反馈评分
+        ratingStars.forEach(star => {
+            star.addEventListener('click', () => {
+                const value = parseInt(star.dataset.value);
+                
+                // 更新星星显示
+                ratingStars.forEach((s, i) => {
+                    if (i < value) {
+                        s.classList.remove('far');
+                        s.classList.add('fas', 'active');
+                    } else {
+                        s.classList.remove('fas', 'active');
+                        s.classList.add('far');
+                    }
+                });
+                
+                // 保存反馈评分（API调用）
+                saveFeedbackRating(value);
+                
+                // 显示感谢消息
+                feedbackText.innerHTML = `感谢你的评分！我们会根据你的反馈优化未来的交流体验。<br><span style="color: var(--secondary); font-weight: 500;">评分：${value}/5</span>`;
+            });
+        });
+        
+        /**
+         * 保存反馈评分（API调用）
+         * @function
+         * @param {number} rating - 用户评分 (1-5)
+         */
+        function saveFeedbackRating(rating) {
+            // 实际应用中应调用后端API
+            console.log("保存反馈评分:", rating);
+            // API示例：fetch('/api/feedback/rating', {
+            //   method: 'POST',
+            //   body: JSON.stringify({ rating })
+            // })
+        }
+        
+        /**
+         * 生成反馈内容
+         * @function
+         * @param {Object} entry - 日记条目对象
+         * @param {string} personality - 人格类型
+         * @returns {Object} 反馈对象
+         */
+        function generateFeedback(entry, personality) {
+            const feedbackTypes = ['情感支持型', '思考引导型', '建议行动型', '回忆连接型'];
+            const type = feedbackTypes[Math.floor(Math.random() * feedbackTypes.length)];
+            
+            const sampleResponses = {
+                encouraging: [
+                    "我看到你正在经历困难，但请记住去年的这个时候你克服了类似的挑战。你比想象中更坚强！",
+                    "你对这件事的处理方式展示了你的成长，继续保持这种积极的态度！",
+                    "这个想法很有洞察力，未来的你会为此感到骄傲。相信自己的判断力。",
+                    "即使现在感觉艰难，也要记住每一次挑战都是成长的契机。你已经做得很好了！",
+                    "从你描述的经历中，我能看到你非凡的适应能力。继续保持，光明就在前方。"
+                ],
+                analytical: [
+                    "基于你过去三次类似情况的记录，成功率是75%，建议采取A方案并预留缓冲时间。",
+                    "情绪波动数据表明周三是你的高效日，适合处理此任务。",
+                    "对比三个月前的类似记录，你的应对策略有明显改进。",
+                    "从概率角度看，这个决策的成功率约为68%，建议补充B计划。",
+                    "历史数据表明，当你处于这种情绪状态时，最适合进行创意性工作。"
+                ],
+                direct: [
+                    "立即行动：今天完成计划的第一步，拖延只会增加压力。",
+                    "关键问题：明确优先级，放弃低价值任务。",
+                    "硬事实：类似决策的历史成功率是68%，建议调整策略。",
+                    "下一步：联系相关人员，安排会议讨论解决方案。",
+                    "核心建议：专注于可控因素，忽略不可控的外部影响。"
+                ]
+            };
+            
+            return {
+                content: sampleResponses[personality][
+                    Math.floor(Math.random() * sampleResponses[personality].length)
+                ],
+                type,
+                personality
+            };
+        }
+        
+        // ===========================================
+        // 初始化函数
+        // ===========================================
+        
+        /**
+         * 初始化应用
+         * @function
+         */
+        function initApp() {
+            updateMoodLabel();
+            
+            // 模拟从API加载用户设置
+            setTimeout(() => {
+                console.log("用户设置已加载");
+            }, 500);
+            
+            // 模拟从API加载历史日记
+            setTimeout(() => {
+                console.log("历史日记已加载");
+            }, 800);
+        }
+        
+        // 启动应用
+        initApp();
+    </script>
+</body>
+</html>
