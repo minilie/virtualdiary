@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES6",                // 编译目标为 ES6
+    "module": "commonjs",           // Node.js 使用 CommonJS 模块
+    "outDir": "./dist",             // 编译输出目录
+    "rootDir": "./src",             // 源代码目录（建议）
+    "strict": true,                 // 启用严格类型检查
+    "esModuleInterop": true,        // 兼容 CommonJS/ES6 模块导入
+    "skipLibCheck": true,           // 跳过库类型检查（加速编译）
+    "allowJs": true,                // ​**允许编译 .js 文件**​（混合迁移关键！）
+    "baseUrl": "./", // 基础路径
+    "paths": {
+      "@/*": ["src/*"] // 路径别名
+    }
+  },
+  "include": ["src/**/*", "src/models", "src/routes", "tests/**/*.ts"],          // 编译范围
+  "exclude": ["node_modules", "dist"] // 排除目录
+}

@@ -1,10 +1,9 @@
-const express = require('express');
-const router = express.Router();
+import express, { Router } from 'express'; // 1. 使用 ES Module 导入
+import authRoutes from './authRoutes'; // 2. 省略 `.ts` 扩展名
 
-// 用户认证路由
-const authRoutes = require('./authRoutes');
+const router: Router = express.Router();
+
 router.use('/auth', authRoutes);
-
 // // 用户管理路由
 // const userRoutes = require('./userRoutes');
 // router.use('/user', userRoutes);
@@ -41,4 +40,4 @@ router.use('/auth', authRoutes);
 // const dataRoutes = require('./dataRoutes');
 // router.use('/data', dataRoutes);
 
-module.exports = router;
+export default router;
