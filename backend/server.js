@@ -1,16 +1,16 @@
 require('dotenv').config();
 const express = require('express');
-// const bodyParser = require('body-parser');
-const cors = require('cors');
+const app = express();
+
 const apiRouter = require('./routes/api');
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 const BASE_PATH = process.env.BASE_PATH || '/api';
 
 // 中间件
-app.use(cors()); // 允许跨域请求
+app.use(require('cors')()); // 允许跨域请求
 app.use(express.json());  // 解析 json 请求体
+app.use(require('cookie-parser')()); 
 
 // 基础路由
 app.get('/', (req, res) => {
