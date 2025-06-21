@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟时间旅行日记</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 引入 Remix Icon 字体图标库，提供美观的图标 -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="app-title">
+                    <i class="ri-time-line"></i> 时间日记
+                </h1>
+            </div>
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=User+Name&background=2C3E50&color=fff&size=128" alt="用户头像" class="user-avatar" id="user-avatar">
+                <div class="user-info">
+                    <span class="user-name" id="user-name">旅行者 A</span>
+                    <span class="user-email" id="user-email">traveler.a@example.com</span>
+                </div>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="#" class="nav-item active" data-section="diary"><i class="ri-book-open-line"></i> 日记</a></li>
+                    <li><a href="#" class="nav-item" data-section="feedback"><i class="ri-robot-line"></i> 未来的你</a></li>
+                    <li><a href="#" class="nav-item" data-section="memory"><i class="ri-calendar-event-line"></i> 记忆连接</a></li>
+                    <li><a href="#" class="nav-item" data-section="decision"><i class="ri-lightbulb-line"></i> 决策辅助</a></li>
+                    <li><a href="#" class="nav-item" data-section="friends"><i class="ri-group-line"></i> 好友</a></li>
+                    <li><a href="#" class="nav-item" data-section="analytics"><i class="ri-bar-chart-2-line"></i> 数据分析</a></li>
+                    <li><a href="#" class="nav-item" data-section="settings"><i class="ri-settings-3-line"></i> 设置</a></li>
+                    <li><a href="#" class="nav-item" data-section="api-docs"><i class="ri-braces-line"></i> API 文档</a></li>
+                </ul>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" id="add-diary-entry-btn"><i class="ri-add-line"></i> 新建日记</button>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content-area">
+            <header class="main-header">
+                <h2 class="section-title" id="current-section-title">日记</h2>
+                <div class="header-controls">
+                    <!-- 时间旅行控制，例如选择日期 -->
+                    <input type="date" class="date-picker" id="diary-date-picker">
+                    <button class="btn btn-icon"><i class="ri-search-line"></i></button>
+                    <!-- 其他可能的控制按钮 -->
+                </div>
+            </header>
+
+            <section class="content-section" id="diary-section">
+                <!-- 日记列表将在这里渲染 -->
+                <div class="diary-list-container" id="diary-list-container">
+                    <!-- 骨架屏或实际日记卡片 -->
+                    <div class="skeleton-wrapper diary-skeleton">
+                        <div class="skeleton-card">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
+                        </div>
+                        <div class="skeleton-card">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="diary-empty-state">
+                    <i class="ri-calendar-2-line empty-icon"></i>
+                    <p class="empty-message">还没有日记哦，快来记录你的时间旅行吧！</p>
+                    <button class="btn-outline" id="empty-state-add-btn">写下第一篇日记</button>
+                </div>
+            </section>
+
+            <section class="content-section hidden" id="feedback-section">
+                <div class="feedback-list-container" id="feedback-list-container">
+                    <!-- 反馈列表将在这里渲染 -->
+                    <div class="skeleton-wrapper feedback-skeleton">
+                        <div class="skeleton-feedback-card">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
+                        </div>
+                        <div class="skeleton-feedback-card">
+                            <div class="skeleton-header"></div>
+                            <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="feedback-empty-state">
+                    <i class="ri-chat-3-line empty-icon"></i>
+                    <p class="empty-message">“未来的你”还没有留言哦。</p>
+                </div>
+            </section>
+
+            <!-- 新增：记忆连接模块 -->
+            <section class="content-section hidden" id="memory-section">
+                <div class="memory-container" id="memory-container">
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                    <div class="memory-timeline-view hidden">
+                        <!-- 时间线视图将在这里渲染 -->
+                        <h3 class="memory-title">你的记忆时间线</h3>
+                        <div class="timeline-wrapper" id="timeline-wrapper">
+                            <!-- 示例时间线节点 -->
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="timeline-date">2077-10-26</span>
+                                    <p class="timeline-entry-title">初探2077：赛博朋克都市的霓虹夜</p>
+                                    <span class="timeline-tag">#未来</span> <span class="timeline-tag">#赛博朋克</span>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-dot"></div>
+                                <div class="timeline-content">
+                                    <span class="timeline-date">公元前1350年</span>
+                                    <p class="timeline-entry-title">古埃及之旅：尼罗河畔的信仰与权力</p>
+                                    <span class="timeline-tag">#历史</span> <span class="timeline-tag">#古埃及</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="memory-review-section hidden">
+                        <h3 class="memory-title">今日记忆回顾</h3>
+                        <div class="memory-review-card">
+                            <p>你最近似乎对“时间”这个概念很感兴趣。回想起你在2077年的日记，你写道：“时间在这里仿佛被加速，但又被科技凝固。”</p>
+                            <button class="btn btn-outline btn-sm">查看相关日记</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="memory-empty-state">
+                    <i class="ri-focus-3-line empty-icon"></i>
+                    <p class="empty-message">暂无记忆连接或回顾。</p>
+                </div>
+            </section>
+
+            <!-- 新增：决策辅助模块 -->
+            <section class="content-section hidden" id="decision-section">
+                <div class="decision-container" id="decision-container">
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                    <div class="decision-intro hidden">
+                        <h3 class="decision-title">决策辅助系统</h3>
+                        <p class="decision-description">在这里，“未来的你”将帮助你分析当前困境，提供基于历史经验和多角度的建议。</p>
+                        <button class="btn btn-primary" id="start-decision-aid-btn"><i class="ri-question-answer-line"></i> 描述你的困境</button>
+                    </div>
+                    <div class="decision-tracker hidden">
+                        <h3 class="decision-title">你的决策记录</h3>
+                        <div class="decision-list" id="decision-list">
+                            <!-- 示例决策卡片 -->
+                            <div class="decision-card">
+                                <h4>是否选择在未来城市定居？</h4>
+                                <p class="decision-outcome success">结果：选择定居，适应良好。</p>
+                                <span class="decision-date">2077-11-01</span>
+                            </div>
+                             <div class="decision-card">
+                                <h4>是否投资时间旅行设备改造？</h4>
+                                <p class="decision-outcome pending">结果：正在考量中...</p>
+                                <span class="decision-date">2025-06-04</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="decision-empty-state">
+                    <i class="ri-lightbulb-flash-line empty-icon"></i>
+                    <p class="empty-message">还没有决策记录或待解决困境。</p>
+                </div>
+            </section>
+
+            <!-- 新增：好友系统模块 -->
+            <section class="content-section hidden" id="friends-section">
+                <div class="friends-container" id="friends-container">
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                    <div class="friend-list-area hidden">
+                        <h3 class="friends-title">你的时间旅行伙伴</h3>
+                        <div class="friend-list" id="friend-list">
+                            <!-- 示例好友卡片 -->
+                            <div class="friend-card">
+                                <img src="https://ui-avatars.com/api/?name=Friend+B&background=06B6D4&color=fff&size=64" alt="好友头像" class="friend-avatar">
+                                <div class="friend-info">
+                                    <span class="friend-name">旅行者 B</span>
+                                    <span class="friend-status">在线</span>
+                                </div>
+                                <button class="btn btn-outline btn-sm">查看互动</button>
+                            </div>
+                            <div class="friend-card">
+                                <img src="https://ui-avatars.com/api/?name=Friend+C&background=F97316&color=fff&size=64" alt="好友头像" class="friend-avatar">
+                                <div class="friend-info">
+                                    <span class="friend-name">时间观察者 C</span>
+                                    <span class="friend-status offline">离线</span>
+                                </div>
+                                <button class="btn btn-outline btn-sm">查看互动</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary mt-4"><i class="ri-user-add-line"></i> 添加好友</button>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="friends-empty-state">
+                    <i class="ri-user-heart-line empty-icon"></i>
+                    <p class="empty-message">还没有任何好友哦。</p>
+                    <button class="btn-outline">添加你的第一个好友</button>
+                </div>
+            </section>
+
+            <!-- 新增：数据分析模块 -->
+            <section class="content-section hidden" id="analytics-section">
+                <div class="analytics-container" id="analytics-container">
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                    <div class="analytics-dashboard hidden">
+                        <h3 class="analytics-title">你的成长报告</h3>
+                        <div class="analytics-card">
+                            <h4>情绪趋势分析</h4>
+                            <p>你最近的情绪波动较大，需关注压力管理。</p>
+                            <div class="chart-placeholder"></div>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>主题分布</h4>
+                            <p>主要关注未来科技和历史文明。</p>
+                            <div class="chart-placeholder"></div>
+                        </div>
+                        <button class="btn btn-outline mt-4"><i class="ri-download-line"></i> 生成完整报告</button>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="analytics-empty-state">
+                    <i class="ri-pie-chart-line empty-icon"></i>
+                    <p class="empty-message">暂无数据分析报告可显示。</p>
+                </div>
+            </section>
+
+            <!-- 新增：设置模块 -->
+            <section class="content-section hidden" id="settings-section">
+                <div class="settings-container" id="settings-container">
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                    <div class="user-settings-form hidden">
+                        <h3 class="settings-title">个性化设置</h3>
+                        <form id="personalization-settings-form">
+                            <div class="form-group">
+                                <label for="future-self-trait">未来人格特质</label>
+                                <select id="future-self-trait">
+                                    <option value="openness">开放性</option>
+                                    <option value="conscientiousness">责任感</option>
+                                    <option value="extraversion">外向性</option>
+                                    <option value="agreeableness">宜人性</option>
+                                    <option value="neuroticism">情绪稳定性</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="feedback-style">反馈风格偏好</label>
+                                <select id="feedback-style">
+                                    <option value="encouraging">鼓励型</option>
+                                    <option value="analytical">分析型</option>
+                                    <option value="humorous">幽默型</option>
+                                    <option value="direct">直接型</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="interaction-frequency">互动频率</label>
+                                <input type="range" id="interaction-frequency" min="1" max="5" value="3">
+                                <span class="range-value" id="interaction-frequency-value">中等</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="privacy-level">隐私等级</label>
+                                <select id="privacy-level">
+                                    <option value="high">高（仅自己可见）</option>
+                                    <option value="medium">中（部分好友可见）</option>
+                                    <option value="low">低（公开部分日记）</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-4">保存设置</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="settings-empty-state">
+                    <i class="ri-tools-line empty-icon"></i>
+                    <p class="empty-message">设置加载失败。</p>
+                </div>
+            </section>
+
+             <section class="content-section hidden" id="api-docs-section">
+                <div class="api-docs-container" id="api-docs-container">
+                    <!-- API 文档将在这里渲染 -->
+                    <div class="skeleton-wrapper api-docs-skeleton">
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                        <div class="skeleton-api-card">
+                            <div class="skeleton-line short"></div>
+                            <div class="skeleton-line long"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="empty-state hidden" id="api-docs-empty-state">
+                    <i class="ri-file-code-line empty-icon"></i>
+                    <p class="empty-message">暂无 API 文档可显示。</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- 右侧详情/面板 (可选，用于显示日记详情或编辑) -->
+        <aside class="right-panel hidden" id="right-panel">
+            <div class="panel-header">
+                <h3 id="panel-title">日记详情</h3>
+                <button class="btn-icon" id="close-right-panel"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="panel-content" id="panel-content">
+                <!-- 详情内容将在这里渲染 -->
+                <div class="skeleton-wrapper panel-skeleton">
+                    <div class="skeleton-header"></div>
+                    <div class="skeleton-line short"></div>
+                    <div class="skeleton-line long"></div>
+                    <div class="skeleton-line medium"></div>
+                    <div class="skeleton-line medium"></div>
+                </div>
+            </div>
+            <div class="panel-footer" id="panel-footer">
+                <!-- 按钮，例如编辑、删除 -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- 模态框容器 -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+        <div class="modal-container" id="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title"></h3>
+                <button class="btn-icon modal-close" id="modal-close-btn"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-content" id="modal-content">
+                <!-- 模态框内容将在这里渲染 -->
+                <!-- 日记编辑表单的富文本模拟和新字段UI -->
+                <form id="diary-form">
+                    <div class="form-group">
+                        <label for="diary-title">标题</label>
+                        <input type="text" id="diary-title" placeholder="日记标题" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-date">日期</label>
+                        <input type="date" id="diary-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-content">内容</label>
+                        <div class="rich-text-editor-toolbar">
+                            <button type="button" class="editor-btn" data-command="bold"><i class="ri-bold"></i></button>
+                            <button type="button" class="editor-btn" data-command="italic"><i class="ri-italic"></i></button>
+                            <button type="button" class="editor-btn" data-command="link"><i class="ri-link"></i></button>
+                            <button type="button" class="editor-btn" data-command="image"><i class="ri-image-line"></i></button>
+                            <button type="button" class="editor-btn" id="voice-input-btn"><i class="ri-mic-line"></i></button>
+                            <span class="voice-status hidden" id="voice-status">录音中...</span>
+                        </div>
+                        <div id="diary-content-editor" class="rich-text-editor-content" contenteditable="true" placeholder="记录你的时间旅行..."></div>
+                        <!-- <textarea id="diary-content" rows="10" placeholder="记录你的时间旅行..." required></textarea> -->
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-template">选择模板</label>
+                        <select id="diary-template">
+                            <option value="free">自由记录</option>
+                            <option value="structured">结构化模板</option>
+                            <option value="guided">引导式问题</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-emotion">情绪标签</label>
+                        <select id="diary-emotion">
+                            <option value="">选择情绪</option>
+                            <option value="happy">开心</option>
+                            <option value="sad">悲伤</option>
+                            <option value="excited">激动</option>
+                            <option value="calm">平静</option>
+                            <option value="stressed">压力</option>
+                            <option value="reflective">反思</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-theme">主题分类</label>
+                        <input type="text" id="diary-theme" placeholder="例如：未来科技, 个人成长">
+                    </div>
+                    <div class="form-group">
+                        <label for="diary-tags">标签 (用逗号分隔)</label>
+                        <input type="text" id="diary-tags" placeholder="例如：历史, 奇遇">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" id="modal-footer">
+                <!-- 模态框底部按钮 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/uiRenderer.js"></script>
+    <script src="js/eventHandlers.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
