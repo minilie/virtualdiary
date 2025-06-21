@@ -7,8 +7,13 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL,
   nickname TEXT,
+  avatar TEXT,
+  personality_settings TEXT DEFAULT '{}',
+  goals TEXT DEFAULT '[]',
+  communication_style TEXT,
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )`);
+
 
 class User {
   constructor({email, password, nickname}) {
@@ -69,6 +74,72 @@ class User {
       });
     });
   }
+
+  /*static updatePersonality(userId, data) {
+    return new Promise((resolve, reject) => {
+      const query = `UPDATE users SET personality_settings = ? WHERE id = ?`;
+      db.run(query, [data.personality_settings, userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
+      });
+    });
+  }*/
+  static updatePersonality(userId, data) {
+    return new Promise((resolve, reject) => {
+      const personalitySettings = JSON.stringify({
+        personality: data.personality,
+        goals: data.goals,
+        communicationStyle: data.communicationStyle
+      });
+      const query = `UPDATE users SET personality_settings = ? WHERE id = ?`;
+      db.run(query, [personalitySettings, userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
+      });
+    });
+  }
+
+
+  static updateProfile(userId, data) {
+    return new Promise((resolve, reject) => {
+      // 动态生成 SET 语句和参数数组，支持部分字段更新
+      const fields = [];
+      const params = [];
+
+      if (data.avatar !== undefined) {
+        fields.push('avatar = ?');
+        params.push(data.avatar);
+      }
+      if (data.nickname !== undefined) {
+        fields.push('nickname = ?');
+        params.push(data.nickname);
+      }
+
+      if (fields.length === 0) {
+        // 没有字段更新，直接resolve
+        return resolve({ success: false, message: 'No fields to update' });
+      }
+
+      const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
+      params.push(userId);
+
+      db.run(query, params, function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
+      });
+    });
+  }
+
+  static getUserProfile(userId) {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT id, email, nickname, avatar, personality_settings, goals, communication_style, createdAt FROM users WHERE id = ?`;
+    db.get(query, [userId], (err, row) => {
+      if (err) return reject(err);
+      resolve(row || null);
+    });
+  });
+}
+
 }
 
 module.exports = User;

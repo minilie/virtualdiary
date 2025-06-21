@@ -7,7 +7,9 @@ router.use('/auth', authRoutes);
 // // 用户管理路由
 // const userRoutes = require('./userRoutes');
 // router.use('/user', userRoutes);
-
+import userRoutes from './userRoutes';
+// ...
+router.use('/user', userRoutes);
 // // 日记管理路由
 // const diaryRoutes = require('./diaryRoutes');
 // router.use('/diary', diaryRoutes);
