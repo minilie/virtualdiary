@@ -1,0 +1,339 @@
+/* css/_sections.css */
+
+.content-section {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-sm);
+    flex-grow: 1; /* 允许内容区占据剩余空间 */
+    display: flex; /* 确保内部内容可以居中 */
+    flex-direction: column;
+    align-items: center; /* 水平居中 */
+    justify-content: center; /* 垂直居中 */
+    text-align: center; /* 文本居中 */
+    min-height: 200px; /* 最小高度，避免内容过少时塌陷 */
+}
+
+/* 针对内容列表的容器，不强制居中，而是让内容流式布局 */
+.diary-list-container,
+.feedback-list-container,
+.api-docs-container,
+.memory-container, /* 新增 */
+.decision-container, /* 新增 */
+.friends-container, /* 新增 */
+.analytics-container, /* 新增 */
+.settings-container /* 新增 */
+{
+    width: 100%;
+    height: 100%; /* 占据父容器所有高度 */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    align-items: stretch; /* 确保子项宽度填充 */
+    overflow-y: auto; /* 如果内容过多，允许滚动 */
+    padding-right: var(--spacing-1); /* 防止滚动条遮挡内容 */
+    text-align: left; /* 内部内容左对齐 */
+    justify-content: flex-start; /* 内容顶部对齐 */
+    align-items: flex-start; /* 内容左对齐 */
+}
+
+/* 空状态样式 */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-text-light);
+    font-size: var(--font-size-md);
+    padding: var(--spacing-8);
+    gap: var(--spacing-4);
+    flex-grow: 1; /* 确保空状态占据可用空间并居中 */
+    width: 100%; /* 确保在父容器中居中 */
+}
+
+.empty-icon {
+    font-size: var(--font-size-4xl);
+    color: var(--color-primary-light);
+}
+
+.empty-message {
+    font-size: var(--font-size-lg);
+    font-weight: 500;
+    margin-bottom: var(--spacing-4);
+}
+
+/* 新增模块通用样式 */
+.memory-container,
+.decision-container,
+.friends-container,
+.analytics-container,
+.settings-container {
+    max-width: 900px; /* 限制宽度，使其更易读 */
+    margin: 0 auto; /* 水平居中 */
+    padding: var(--spacing-5);
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    flex-grow: 0; /* 不强制占据所有空间，内容决定高度 */
+}
+
+/* 记忆连接模块 */
+.memory-title, .decision-title, .friends-title, .analytics-title, .settings-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-text-dark);
+    margin-bottom: var(--spacing-5);
+    text-align: center;
+    width: 100%;
+}
+
+.timeline-wrapper {
+    position: relative;
+    padding-left: 20px;
+    border-left: 2px solid var(--color-border);
+    margin-left: var(--spacing-8);
+    padding-bottom: var(--spacing-4);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: var(--spacing-6);
+    padding-left: var(--spacing-8);
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -27px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-primary);
+    border-radius: var(--border-radius-full);
+    border: 3px solid var(--color-surface);
+}
+
+.timeline-content {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.timeline-date {
+    display: block;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-lighter);
+    margin-bottom: var(--spacing-1);
+}
+
+.timeline-entry-title {
+    font-weight: 600;
+    font-size: var(--font-size-lg);
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-2);
+}
+
+.timeline-tag {
+    background-color: var(--color-primary-light);
+    color: var(--color-surface);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--border-radius-full);
+    font-size: var(--font-size-sm);
+    margin-right: var(--spacing-2);
+    display: inline-block;
+    margin-top: var(--spacing-2);
+}
+
+.memory-review-card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    margin-top: var(--spacing-6);
+    text-align: center;
+}
+
+/* 决策辅助模块 */
+.decision-intro {
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+}
+
+.decision-description {
+    font-size: var(--font-size-md);
+    color: var(--color-text-light);
+    margin-bottom: var(--spacing-5);
+}
+
+.decision-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.decision-card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.decision-card h4 {
+    font-size: var(--font-size-lg);
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-2);
+}
+
+.decision-outcome {
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    margin-bottom: var(--spacing-2);
+}
+
+.decision-outcome.success { color: var(--color-success); }
+.decision-outcome.pending { color: var(--color-accent); }
+.decision-outcome.failed { color: var(--color-danger); }
+
+.decision-date {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-lighter);
+}
+
+
+/* 好友系统模块 */
+.friend-list {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+}
+
+.friend-card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+}
+
+.friend-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--border-radius-full);
+    object-fit: cover;
+    border: 2px solid var(--color-secondary);
+}
+
+.friend-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.friend-name {
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+.friend-status {
+    font-size: var(--font-size-sm);
+    color: var(--color-success);
+}
+
+.friend-status.offline {
+    color: var(--color-text-lighter);
+}
+
+/* 数据分析模块 */
+.analytics-dashboard {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+}
+
+.analytics-card {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.analytics-card h4 {
+    font-size: var(--font-size-lg);
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-3);
+}
+
+.chart-placeholder {
+    background-color: var(--color-border);
+    height: 150px;
+    border-radius: var(--border-radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
+/* 设置模块 */
+.user-settings-form {
+    width: 100%;
+}
+
+.user-settings-form .form-group {
+    margin-bottom: var(--spacing-5);
+}
+
+.user-settings-form input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.user-settings-form input[type="range"]:hover {
+    opacity: 1;
+}
+
+.user-settings-form input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.user-settings-form input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+}
+
+.user-settings-form .range-value {
+    display: block;
+    text-align: right;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    margin-top: var(--spacing-2);
+}
