@@ -1,0 +1,119 @@
+/* css/_sidebar.css */
+
+.sidebar {
+    background-color: var(--color-surface);
+    color: var(--color-text-dark);
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* 将内容推到顶部和底部 */
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+}
+
+.sidebar-header {
+    margin-bottom: var(--spacing-8);
+    text-align: center;
+}
+
+.app-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+}
+
+.app-title i {
+    font-size: var(--font-size-3xl);
+}
+
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-8);
+    text-align: center;
+}
+
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--border-radius-full);
+    object-fit: cover;
+    border: 3px solid var(--color-primary-light);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-3);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.user-name {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+.user-email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-lighter);
+}
+
+.main-nav {
+    flex-grow: 1; /* 导航占据中间剩余空间 */
+}
+
+.main-nav ul {
+    display: flex;
+    flex-direction: column;
+    /* 调整间距以适应更多导航项 */
+    gap: var(--spacing-1); 
+}
+
+.main-nav .nav-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-light);
+    font-size: var(--font-size-md);
+    font-weight: 500;
+    transition: background-color var(--transition-duration), color var(--transition-duration);
+}
+
+.main-nav .nav-item i {
+    font-size: var(--font-size-xl);
+}
+
+.main-nav .nav-item:hover {
+    background-color: var(--color-primary-light);
+    color: var(--color-surface);
+}
+
+.main-nav .nav-item.active {
+    background-color: var(--color-primary);
+    color: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+}
+
+.main-nav .nav-item.active:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.sidebar-footer {
+    padding-top: var(--spacing-6);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.sidebar-footer .btn {
+    width: 100%; /* 让按钮宽度填满 */
+}
