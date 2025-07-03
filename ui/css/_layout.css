@@ -1,0 +1,236 @@
+/* css/_layout.css */
+
+.app-container {
+    display: grid;
+    grid-template-columns: 280px 1fr; /* 侧边栏宽度和主内容区 */
+    grid-template-rows: 1fr;
+    height: 100vh; /* 使用 vh 确保占据视口高度 */
+    overflow: hidden; /* 防止滚动条出现在内部 */
+    background-color: var(--color-background);
+}
+
+.main-content-area {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* 允许主内容区滚动 */
+    padding: var(--spacing-6);
+    gap: var(--spacing-6); /* 主内容区内的各个部分间距 */
+    background-color: var(--color-background);
+}
+
+.right-panel {
+    /* 核心定位属性：使其作为固定面板浮动在页面右侧 */
+    position: fixed; /* 关键：脱离文档流，相对于视口定位 */
+    top: 0;          /* 顶部对齐视口 */
+    right: 0;        /* 右侧对齐视口 */
+    height: 100vh;   /* 占据整个视口高度 */
+    width: 400px;    /* 默认宽度 */
+    z-index: 900;    /* 层级：高于主内容，低于模态框 (1000) */
+
+    background-color: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    padding: var(--spacing-6); /* 默认填充，将在 hidden 状态下移除 */
+    box-shadow: var(--shadow-lg); /* 默认阴影，将在 hidden 状态下移除 */
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto; /* 内容溢出时可滚动 */
+
+    /* 动画过渡：只过渡 transform 和 opacity */
+    transition: transform var(--transition-duration) var(--transition-timing-function),
+                opacity var(--transition-duration) var(--transition-timing-function),
+                width var(--transition-duration) var(--transition-timing-function),
+                padding var(--transition-duration) var(--transition-timing-function),
+                border-left-color var(--transition-duration) var(--transition-timing-function),
+                box-shadow var(--transition-duration) var(--transition-timing-function);
+
+    /* 初始状态：完全移出屏幕外，透明，不占据空间 */
+    transform: translateX(100%); /* 默认在屏幕外 */
+    opacity: 0;
+    width: 0; /* 隐藏时宽度为0，不占用空间 */
+    padding: 0; /* 隐藏时无填充 */
+    border-left: none; /* 隐藏时无边框 */
+    box-shadow: none; /* 隐藏时无阴影 */
+}
+
+/* 当右侧面板被激活时 */
+.right-panel.active {
+    transform: translateX(0); /* 滑入屏幕内 */
+    opacity: 1; /* 完全可见 */
+    width: 400px; /* 恢复宽度 */
+    padding: var(--spacing-6); /* 恢复填充 */
+    border-left: 1px solid var(--color-border); /* 恢复边框 */
+    box-shadow: var(--shadow-lg); /* 恢复阴影 */
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: var(--spacing-4);
+}
+
+.panel-title {
+    font-size: var(--font-size-xl);
+    color: var(--color-text-dark);
+}
+
+.panel-content {
+    flex-grow: 1; /* 内容区占据剩余空间 */
+    overflow-y: auto;
+    padding-bottom: var(--spacing-4); /* 确保底部有间距 */
+}
+
+.panel-footer {
+    display: flex;
+    justify-content: flex-end; /* 按钮靠右 */
+    gap: var(--spacing-3);
+    padding-top: var(--spacing-4);
+    border-top: 1px solid var(--color-border);
+}
+
+/* Tablet and smaller desktops */
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 240px 1fr; /* 缩小侧边栏 */
+    }
+
+    .sidebar {
+        padding: var(--spacing-4);
+    }
+
+    .app-title {
+        font-size: var(--font-size-xl);
+    }
+    .app-title i {
+        font-size: var(--font-size-2xl);
+    }
+
+    .user-avatar {
+        width: 70px;
+        height: 70px;
+    }
+
+    .main-nav .nav-item {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-sm);
+    }
+    .main-nav .nav-item i {
+        font-size: var(--font-size-lg);
+    }
+
+    .main-content-area {
+        padding: var(--spacing-4);
+        gap: var(--spacing-4);
+    }
+
+    .main-header {
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+
+    /* 响应式调整：在小尺寸屏幕上，侧边栏变为全宽 */
+    .right-panel {
+        width: 350px; /* 缩小右侧面板 */
+        /* 保持其他定位属性不变 */
+    }
+    .right-panel.active {
+        width: 350px; /* 激活时恢复为缩小后的宽度 */
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr; /* 侧边栏和主内容区堆叠 */
+        grid-template-rows: auto 1fr; /* 侧边栏 (或顶部导航) + 内容区 */
+    }
+
+    .sidebar {
+        position: fixed; /* 侧边栏固定在顶部或变为抽屉式 */
+        top: 0;
+        left: 0;
+        width: 100%; /* 全宽 */
+        height: auto; /* 自适应高度 */
+        padding: var(--spacing-4);
+        border-right: none;
+        box-shadow: var(--shadow-md);
+        z-index: 999;
+        flex-direction: row; /* 变为水平布局 */
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .sidebar-header, .user-profile, .main-nav, .sidebar-footer {
+        display: none; /* 默认隐藏侧边栏内容，可以通过JS切换显示一个汉堡菜单 */
+    }
+
+    /* 简单的移动端顶部导航 */
+    .app-title {
+        margin: 0;
+    }
+    .main-header {
+        margin-top: 70px; /* 为顶部导航留出空间 */
+    }
+
+    .main-content-area {
+        padding: var(--spacing-4);
+        gap: var(--spacing-3);
+    }
+
+    /* 手机上右侧面板全宽 */
+    .right-panel {
+        width: 100%; /* 手机上全宽 */
+        z-index: 1001; /* 手机上层级更高，因为可能覆盖整个屏幕 */
+        /* height: 100vh; top: 0; right: 0; 保持不变 */
+        /* transform: translateX(100%); 保持不变 */
+    }
+
+    .right-panel.active { /* 激活时显示 */
+        transform: translateX(0);
+        width: 100%; /* 手机上激活时也保持全宽 */
+    }
+
+    .modal-container {
+        width: 95%;
+        max-width: 95%;
+        margin: var(--spacing-4) auto; /* 垂直居中，水平也有边距 */
+    }
+
+    .modal-header {
+        padding: var(--spacing-4);
+    }
+    .modal-content {
+        padding: var(--spacing-4);
+    }
+    .modal-footer {
+        padding: var(--spacing-4);
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .header-controls {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: var(--spacing-2);
+    }
+    .date-picker {
+        width: 100%;
+    }
+    .btn {
+        padding: var(--spacing-2) var(--spacing-4);
+        font-size: var(--font-size-sm);
+    }
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+    .diary-card-title {
+        font-size: var(--font-size-lg);
+    }
+}

@@ -1,0 +1,150 @@
+/* css/_responsive.css */
+
+/* Tablet and smaller desktops */
+@media (max-width: 1024px) {
+    .app-container {
+        grid-template-columns: 240px 1fr; /* 缩小侧边栏 */
+    }
+
+    .sidebar {
+        padding: var(--spacing-4);
+    }
+
+    .app-title {
+        font-size: var(--font-size-xl);
+    }
+    .app-title i {
+        font-size: var(--font-size-2xl);
+    }
+
+    .user-avatar {
+        width: 70px;
+        height: 70px;
+    }
+
+    .main-nav .nav-item {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-sm);
+    }
+    .main-nav .nav-item i {
+        font-size: var(--font-size-lg);
+    }
+
+    .main-content-area {
+        padding: var(--spacing-4);
+        gap: var(--spacing-4);
+    }
+
+    .main-header {
+        padding: var(--spacing-3) var(--spacing-4);
+    }
+
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .right-panel {
+        width: 350px; /* 缩小右侧面板 */
+        padding: var(--spacing-4);
+    }
+
+    .modal-container {
+        max-width: 500px;
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+    .app-container {
+        grid-template-columns: 1fr; /* 侧边栏和主内容区堆叠 */
+        grid-template-rows: auto 1fr; /* 侧边栏 (或顶部导航) + 内容区 */
+    }
+
+    .sidebar {
+        position: fixed; /* 侧边栏固定在顶部或变为抽屉式 */
+        top: 0;
+        left: 0;
+        width: 100%; /* 全宽 */
+        height: auto; /* 自适应高度 */
+        padding: var(--spacing-4);
+        border-right: none;
+        box-shadow: var(--shadow-md);
+        z-index: 999;
+        flex-direction: row; /* 变为水平布局 */
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .sidebar-header, .user-profile, .main-nav, .sidebar-footer {
+        display: none; /* 默认隐藏侧边栏内容，可以通过JS切换显示一个汉堡菜单 */
+    }
+
+    /* 简单的移动端顶部导航 */
+    .app-title {
+        margin: 0;
+    }
+    .main-header {
+        margin-top: 70px; /* 为顶部导航留出空间 */
+    }
+
+    .main-content-area {
+        padding: var(--spacing-4);
+        gap: var(--spacing-3);
+    }
+
+    .right-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100%; /* 手机上全宽 */
+        height: 100%;
+        z-index: 1001; /* 比模态框低，但比主内容高 */
+        border-left: none;
+        box-shadow: none;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .right-panel.active { /* 激活时显示 */
+        transform: translateX(0);
+    }
+
+    .modal-container {
+        width: 95%;
+        max-width: 95%;
+        margin: var(--spacing-4);
+    }
+
+    .modal-header {
+        padding: var(--spacing-4);
+    }
+    .modal-content {
+        padding: var(--spacing-4);
+    }
+    .modal-footer {
+        padding: var(--spacing-4);
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .header-controls {
+        flex-direction: column;
+        align-items: flex-end;
+        gap: var(--spacing-2);
+    }
+    .date-picker {
+        width: 100%;
+    }
+    .btn {
+        padding: var(--spacing-2) var(--spacing-4);
+        font-size: var(--font-size-sm);
+    }
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+    .diary-card-title {
+        font-size: var(--font-size-lg);
+    }
+}

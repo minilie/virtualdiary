@@ -1,0 +1,154 @@
+/* css/_loading_skeleton.css */
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: -200px 0;
+    }
+    100% {
+        background-position: calc(200px + 100%) 0;
+    }
+}
+
+.skeleton-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+/* 基础骨架屏项，所有其他骨架屏会复制这些样式 */
+.skeleton-item {
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    border-radius: var(--border-radius-sm);
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+/* 骨架屏通用元素 - 手动展开 .skeleton-item 的属性 */
+.skeleton-header {
+    height: 24px;
+    width: 70%;
+    margin-bottom: var(--spacing-3);
+    border-radius: var(--border-radius-md);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+.skeleton-line {
+    height: 16px;
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--border-radius-sm);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+.skeleton-line.short {
+    width: 30%;
+}
+
+.skeleton-line.medium {
+    width: 60%;
+}
+
+.skeleton-line.long {
+    width: 100%;
+}
+
+/* 日记卡片骨架屏 */
+.diary-skeleton .skeleton-card {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.diary-skeleton .skeleton-card .skeleton-header {
+    height: 28px;
+    width: 80%;
+    margin-bottom: var(--spacing-4);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+/* 反馈卡片骨架屏 */
+.feedback-skeleton .skeleton-feedback-card {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.feedback-skeleton .skeleton-feedback-card .skeleton-header {
+    height: 20px;
+    width: 50%;
+    margin-bottom: var(--spacing-3);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+/* API 文档骨架屏 (也用于通用模块骨架屏，例如记忆、决策等) */
+.api-docs-skeleton .skeleton-api-card {
+    background-color: var(--color-surface);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-5);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.api-docs-skeleton .skeleton-api-card .skeleton-line.short {
+    height: 24px;
+    width: 40%;
+    margin-bottom: var(--spacing-3);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+
+/* 右侧面板骨架屏 */
+.panel-skeleton {
+    width: 100%;
+    gap: var(--spacing-3);
+}
+.panel-skeleton .skeleton-header {
+    height: 32px;
+    width: 90%;
+    margin-bottom: var(--spacing-4);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
+.panel-skeleton .skeleton-line {
+    margin-bottom: var(--spacing-3);
+    /* 从 .skeleton-item 复制的属性 */
+    background-color: var(--color-border);
+    background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-background) 40px, var(--color-border) 80px);
+    background-size: 200px 100%;
+    background-repeat: no-repeat;
+    animation: skeleton-loading 1.5s infinite linear;
+}
