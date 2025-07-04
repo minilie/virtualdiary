@@ -1,7 +1,7 @@
 /* css/_variables.css */
 
 :root {
-    /* 颜色 */
+    /* 颜色 - 亮色模式 */
     --color-primary: #6366F1; /* 紫色 (Indigo) */
     --color-primary-light: #8183F7;
     --color-primary-dark: #4F51C0;
@@ -12,14 +12,15 @@
     --color-text-light: #64748B; /* 浅蓝灰 */
     --color-text-lighter: #94A3B8; /* 更浅的蓝灰 */
 
-    --color-background: #F8FAFC; /* 浅灰白 */
-    --color-surface: #FFFFFF;    /* 白色 */
+    --color-background: #F8FAFC; /* 浅灰白 - 主背景 */
+    --color-surface: #FFFFFF;    /* 白色 - 卡片、面板背景 */
     --color-border: #E2E8F0;     /* 边框灰 */
     --color-danger: #EF4444;    /* 红色 */
     --color-success: #22C55E;   /* 绿色 */
+    --color-warning: #FBBF24;   /* 警告色 */
 
     /* 字体 */
-    --font-family-sans: -apple-system, BlinkMacMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     --font-size-base: 16px;
     --font-size-sm: 0.875rem;
     --font-size-md: 1rem;
@@ -57,11 +58,13 @@
     --transition-timing-function: ease-in-out;
 }
 
+/* 新增：暗色模式变量 */
 body.dark-mode {
-    /* 暗色模式颜色 */
     --color-primary: #8183F7; /* 稍亮的紫色，在深色背景下更显眼 */
     --color-primary-light: #9FA1FA;
     --color-primary-dark: #6366F1; /* 暗色模式下的 primary-dark */
+    --color-secondary: #2DD4EE; /* 青色在暗色模式下更亮 */
+    --color-accent: #FB923C;    /* 橙色在暗色模式下更亮 */
 
     --color-text-dark: #F8FAFC; /* 深色背景下的主要文字颜色 */
     --color-text-light: #E2E8F0;
@@ -70,11 +73,42 @@ body.dark-mode {
     --color-background: #1A202C; /* 深灰或深蓝，作为主背景 */
     --color-surface: #2D3748;    /* 卡片、面板等表面颜色 */
     --color-border: #4A5568;     /* 边框颜色 */
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2); /* 阴影在暗色模式下可能需要更深 */
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --color-danger: #F87171;    /* 红色在暗色模式下更亮 */
+    --color-success: #4ADE80;   /* 绿色在暗色模式下更亮 */
+    --color-warning: #FCD34D;   /* 警告色在暗色模式下更亮 */
 
-    /* 特殊组件颜色调整 */
-    .api-method.get { background-color: #1A4D2E; color: #6EE7B7; }
-    .api-method.post { background-color: #2F366F; color: #A5B6FF; }
-    /* ...其他颜色需要为暗色模式重新定义 */
+    /* 暗色模式下阴影可能需要调整，或者直接更淡 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+
+    /* 暗色模式下特定组件颜色调整 */
+    /* API 方法标签 */
+    .api-method.get { background-color: #1A4D2E; color: #6EE7B7; } /* 暗绿 */
+    .api-method.post { background-color: #2F366F; color: #A5B6FF; } /* 暗蓝 */
+    .api-method.put { background-color: #5E4014; color: #FDBA74; } /* 暗橙 */
+    .api-method.delete { background-color: #5F2120; color: #FCA5A5; } /* 暗红 */
+    .api-path {
+        background-color: #4A5568; /* 暗色系路径背景 */
+        color: var(--color-text-light);
+    }
+    .api-code-block {
+        background-color: #0F172A; /* 更深的背景 */
+        color: #E2E8F0; /* 更白的文字 */
+    }
+
+    /* 反馈卡片类型颜色调整 */
+    .feedback-card-type.emotional-support { color: var(--color-success); }
+    .feedback-card-type.thought-provoking { color: var(--color-primary-light); }
+    .feedback-card-type.action-oriented { color: var(--color-accent); }
+    .feedback-card-type.memory-connecting { color: var(--color-secondary); }
+    .feedback-card-type.bug-report { color: var(--color-danger); }
+    .feedback-card-type.feature-request { color: var(--color-primary); }
+
+    /* 骨架屏颜色调整 */
+    .skeleton-item {
+        background-color: var(--color-border);
+        background-image: linear-gradient(90deg, var(--color-border) 0px, var(--color-surface) 40px, var(--color-border) 80px);
+    }
 }
