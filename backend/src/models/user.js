@@ -1,6 +1,6 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./db.sqlite');
-
+//const sqlite3 = require('sqlite3').verbose();
+//const db = new sqlite3.Database('./db.sqlite');
+const db = require('./db');
 // 确保用户表存在
 db.run(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -17,6 +17,7 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 
 class User {
   constructor({email, password, nickname}) {
+    //this.id = id; // 添加 id 属性
     this.email = email;
     this.password = password;
     this.nickname = nickname;
@@ -57,7 +58,8 @@ class User {
         [email],
         (err, row) => {
           if (err) return reject(err);
-          resolve(row ? new User(row) : null);
+          //resolve(row ? new User(row) : null);
+          resolve(row || null);
         }
       );
     });
@@ -136,10 +138,17 @@ class User {
     db.get(query, [userId], (err, row) => {
       if (err) return reject(err);
       resolve(row || null);
+      });
     });
-  });
-}
-
+  }
+  static findById(userId) {
+    return new Promise((resolve, reject) => {
+      db.get('SELECT * FROM users WHERE id = ?', [userId], (err, row) => {
+        if (err) return reject(err);
+        resolve(row ? new User(row) : null);
+      });
+    });
+  }
 }
 
 module.exports = User;

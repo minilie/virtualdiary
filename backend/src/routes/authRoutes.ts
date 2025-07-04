@@ -134,6 +134,8 @@ router.post('/login',
         JWT_SECRET, 
         { expiresIn: TOKEN_EXPIRY }
       );
+//console.log('Signing token for user id:', user.id);
+
 
       // 设置安全Cookie（HTTP-only + SameSite严格模式）
       res.cookie('token', token, {
