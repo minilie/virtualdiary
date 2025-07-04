@@ -1,40 +1,10 @@
 import express, { Router, NextFunction, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import jwt from 'jsonwebtoken';
 import Diary from '../models/diary';
 import db from '../models/db';
-import { ErrorResponse } from '../types/authTypes';
+import { authenticate, AuthenticatedRequest} from '../utils/authenticate';
 
 const router: Router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'secure_fallback_secret';
-
-interface AuthenticatedRequest extends express.Request {
-  userId?: string;
-}
-
-// 鉴权中间件
-const authenticate = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): void => {
-  const token = req.cookies?.token || req.headers['authorization']?.split(' ')[1];
-    
-  if (!token) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
-  }
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-    req.userId = decoded.id;
-    //console.log('Decoded token:', decoded);
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-
-};
 
 // 创建日记
 router.post(

@@ -76,7 +76,7 @@ class VirtualDiaryAPI {
    * @param {string} userData.email - 邮箱
    * @param {string} userData.password - 密码
    * @param {string} userData.nickname - 昵称
-   * @typedef {import('../backend/src/types/authTypes').ErrorResponse} ErrorResponse
+   * @typedef {import('../backend/src/types/authTypes').OkResponse} OkResponse
    * @typedef {import('../backend/src/types/authTypes').ErrorResponse} ErrorResponse
    * @returns {Promise<OkResponse| ErrorResponse>} 注册结果
    */

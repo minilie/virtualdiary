@@ -2,13 +2,14 @@ import express, { Request, Response, Router, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { body, validationResult, Result, ValidationError } from 'express-validator';
-import { UserLogin, UserRegister, ErrorResponse, OkResponse } from '../types/authTypes';
+import { UserLogin, UserRegister, OkResponse } from '../types/authTypes';
+import { ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
 
 const router: Router = express.Router();
 
 // 密钥配置
-const JWT_SECRET: string = process.env.JWT_SECRET || 'secure_fallback_secret';
+const JWT_SECRET: string = process.env.JWT_SECRET || 'dev';
 const TOKEN_EXPIRY: jwt.SignOptions['expiresIn'] = '1h';
 
 /**

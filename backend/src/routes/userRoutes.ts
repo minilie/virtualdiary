@@ -1,7 +1,8 @@
 import express, { Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import { PersonalitySetupRequest, UserProfile, OkResponse, ErrorResponse ,UserProfileResponse} from '../types/userTypes';
-import User from '../models/user'; // 假设已有 User 模型
+import { PersonalitySetupRequest, UserProfile, OkResponse, UserProfileResponse} from '../types/userTypes';
+import { ErrorResponse } from '../types/generalTypes';
+import User from '../models/user';
 
 const router: Router = express.Router();
 

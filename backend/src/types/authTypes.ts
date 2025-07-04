@@ -9,11 +9,6 @@ export interface UserLogin {
   password: string;
 }
 
-export interface ErrorResponse {
-  message: string;
-  details?: any;
-}
-
 export interface OkResponse{
   msg: string;
   other?: any;
