@@ -1,0 +1,70 @@
+/* css/_toast.css */
+.toast-container {
+    position: fixed;
+    top: var(--spacing-4);
+    right: var(--spacing-4);
+    z-index: 10000; /* 确保在最上层 */
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+    pointer-events: none; /* 允许点击穿透 */
+}
+
+.toast {
+    background-color: var(--color-surface);
+    color: var(--color-text-dark);
+    padding: var(--spacing-3) var(--spacing-5);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out, background-color var(--transition-duration), color var(--transition-duration), box-shadow var(--transition-duration); /* 新增：更多过渡属性 */
+    pointer-events: all; /* 允许交互 */
+    min-width: 250px;
+    max-width: 350px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+.toast-icon {
+    font-size: var(--font-size-xl);
+    transition: color var(--transition-duration); /* 新增：颜色过渡 */
+}
+
+.toast-icon.success { color: var(--color-success); }
+.toast-icon.error { color: var(--color-danger); }
+.toast-icon.warning { color: var(--color-warning); }
+.toast-icon.info { color: var(--color-primary); }
+
+.toast-message {
+    flex-grow: 1;
+    font-size: var(--font-size-md);
+    transition: color var(--transition-duration); /* 新增：颜色过渡 */
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: var(--color-text-light);
+    font-size: var(--font-size-lg);
+    cursor: pointer;
+    margin-left: auto;
+    padding: var(--spacing-1);
+    border-radius: var(--border-radius-sm);
+    transition: background-color var(--transition-duration), color var(--transition-duration); /* 新增：颜色过渡 */
+}
+
+.toast-close:hover {
+    background-color: var(--color-border);
+}
