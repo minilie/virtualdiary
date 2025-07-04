@@ -276,12 +276,12 @@ window.UIRenderer = ((Toast) => { // 传入 Toast 模块
         `).join('');
 
         // 为反馈评价的星星添加事件监听
-        elements.feedbackListContainer.querySelectorAll('.feedback-rating .star-icon').forEach(star => {
-            star.addEventListener('click', window.EventHandlers.handleFeedbackRating); // 使用 window.EventHandlers 访问
-        });
-        elements.feedbackListContainer.querySelectorAll('.feedback-rating-input').forEach(input => {
-            input.addEventListener('change', window.EventHandlers.handleFeedbackAdjustmentChange); // 使用 window.EventHandlers 访问
-        });
+        // elements.feedbackListContainer.querySelectorAll('.feedback-rating .star-icon').forEach(star => {
+        //     star.addEventListener('click', window.EventHandlers.handleFeedbackRating); // 使用 window.EventHandlers 访问
+        // });
+        // elements.feedbackListContainer.querySelectorAll('.feedback-rating-input').forEach(input => {
+        //     input.addEventListener('change', window.EventHandlers.handleFeedbackAdjustmentChange); // 使用 window.EventHandlers 访问
+        // });
         console.log('Feedback entries HTML rendered, event listeners re-attached.');
     };
 
