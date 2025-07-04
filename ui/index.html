@@ -4,9 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>虚拟时间旅行日记</title>
-    <link rel="stylesheet" href="css/style.css">
-    <!-- 引入 Remix Icon 字体图标库，提供美观的图标 -->
+    <!-- 引入 Remix Icon 字体图标库 -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- 引入 Chart.js 用于数据可视化 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 引入自定义字体 (例如 Google Fonts - Noto Sans SC 用于中文，Inter 用于英文) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 统一引入 style.css，其中包含所有其他 CSS 文件的内容 -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
@@ -18,7 +26,8 @@
                 </h1>
             </div>
             <div class="user-profile">
-                <img src="https://ui-avatars.com/api/?name=User+Name&background=2C3E50&color=fff&size=128" alt="用户头像" class="user-avatar" id="user-avatar">
+                <!-- 给图片添加 data-src 用于懒加载，src 先为空或占位符 -->
+                <img src="" data-src="https://ui-avatars.com/api/?name=Traveler+A&background=2C3E50&color=fff&size=128" alt="用户头像" class="user-avatar" id="user-avatar">
                 <div class="user-info">
                     <span class="user-name" id="user-name">旅行者 A</span>
                     <span class="user-email" id="user-email">traveler.a@example.com</span>
@@ -26,14 +35,14 @@
             </div>
             <nav class="main-nav">
                 <ul>
-                    <li><a href="#" class="nav-item active" data-section="diary"><i class="ri-book-open-line"></i> 日记</a></li>
-                    <li><a href="#" class="nav-item" data-section="feedback"><i class="ri-robot-line"></i> 未来的你</a></li>
-                    <li><a href="#" class="nav-item" data-section="memory"><i class="ri-calendar-event-line"></i> 记忆连接</a></li>
-                    <li><a href="#" class="nav-item" data-section="decision"><i class="ri-lightbulb-line"></i> 决策辅助</a></li>
-                    <li><a href="#" class="nav-item" data-section="friends"><i class="ri-group-line"></i> 好友</a></li>
-                    <li><a href="#" class="nav-item" data-section="analytics"><i class="ri-bar-chart-2-line"></i> 数据分析</a></li>
-                    <li><a href="#" class="nav-item" data-section="settings"><i class="ri-settings-3-line"></i> 设置</a></li>
-                    <li><a href="#" class="nav-item" data-section="api-docs"><i class="ri-braces-line"></i> API 文档</a></li>
+                    <li><a href="#diary" class="nav-item active" data-section="diary"><i class="ri-book-open-line"></i> 日记</a></li>
+                    <li><a href="#feedback" class="nav-item" data-section="feedback"><i class="ri-robot-line"></i> 未来的你</a></li>
+                    <li><a href="#memory" class="nav-item" data-section="memory"><i class="ri-calendar-event-line"></i> 记忆连接</a></li>
+                    <li><a href="#decision" class="nav-item" data-section="decision"><i class="ri-lightbulb-line"></i> 决策辅助</a></li>
+                    <li><a href="#friends" class="nav-item" data-section="friends"><i class="ri-group-line"></i> 好友</a></li>
+                    <li><a href="#analytics" class="nav-item" data-section="analytics"><i class="ri-bar-chart-2-line"></i> 数据分析</a></li>
+                    <li><a href="#settings" class="nav-item" data-section="settings"><i class="ri-settings-3-line"></i> 设置</a></li>
+                    <li><a href="#api-docs" class="nav-item" data-section="api-docs"><i class="ri-braces-line"></i> API 文档</a></li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -49,8 +58,8 @@
                     <!-- 时间旅行控制，例如选择日期 -->
                     <input type="date" class="date-picker" id="diary-date-picker">
                     <button class="btn btn-icon"><i class="ri-search-line"></i></button>
+                    <!-- 新增：主题切换按钮 -->
                     <button class="btn btn-icon" id="theme-toggle-btn"><i class="ri-moon-line"></i></button>
-                    <!-- 其他可能的控制按钮 -->
                 </div>
             </header>
 
@@ -80,7 +89,9 @@
                     </div>
                 </div>
                 <div class="empty-state hidden" id="diary-empty-state">
-                    <i class="ri-calendar-2-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/6366F1/FFFFFF?text=No+Diary" alt="无日记插画" class="empty-illustration">
+                    <i class="ri-calendar-2-line empty-icon hidden"></i> <!-- 将原图标隐藏，用插画代替 -->
                     <p class="empty-message">还没有日记哦，快来记录你的时间旅行吧！</p>
                     <button class="btn-outline" id="empty-state-add-btn">写下第一篇日记</button>
                 </div>
@@ -103,7 +114,9 @@
                     </div>
                 </div>
                 <div class="empty-state hidden" id="feedback-empty-state">
-                    <i class="ri-chat-3-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/06B6D4/FFFFFF?text=No+Feedback" alt="无反馈插画" class="empty-illustration">
+                    <i class="ri-chat-3-line empty-icon hidden"></i>
                     <p class="empty-message">“未来的你”还没有留言哦。</p>
                 </div>
             </section>
@@ -115,10 +128,12 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                     <div class="memory-timeline-view hidden">
@@ -153,7 +168,9 @@
                     </div>
                 </div>
                 <div class="empty-state hidden" id="memory-empty-state">
-                    <i class="ri-focus-3-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/F97316/FFFFFF?text=No+Memory" alt="无记忆插画" class="empty-illustration">
+                    <i class="ri-focus-3-line empty-icon hidden"></i>
                     <p class="empty-message">暂无记忆连接或回顾。</p>
                 </div>
             </section>
@@ -165,10 +182,12 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                     <div class="decision-intro hidden">
@@ -194,7 +213,9 @@
                     </div>
                 </div>
                 <div class="empty-state hidden" id="decision-empty-state">
-                    <i class="ri-lightbulb-flash-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/22C55E/FFFFFF?text=No+Decision" alt="无决策插画" class="empty-illustration">
+                    <i class="ri-lightbulb-flash-line empty-icon hidden"></i>
                     <p class="empty-message">还没有决策记录或待解决困境。</p>
                 </div>
             </section>
@@ -206,10 +227,12 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                     <div class="friend-list-area hidden">
@@ -217,27 +240,31 @@
                         <div class="friend-list" id="friend-list">
                             <!-- 示例好友卡片 -->
                             <div class="friend-card">
-                                <img src="https://ui-avatars.com/api/?name=Friend+B&background=06B6D4&color=fff&size=64" alt="好友头像" class="friend-avatar">
+                                <!-- data-src 用于懒加载 -->
+                                <img src="" data-src="https://ui-avatars.com/api/?name=Friend+B&background=06B6D4&color=fff&size=64" alt="好友头像" class="friend-avatar">
                                 <div class="friend-info">
                                     <span class="friend-name">旅行者 B</span>
                                     <span class="friend-status">在线</span>
                                 </div>
-                                <button class="btn btn-outline btn-sm">查看互动</button>
+                                <button class="btn btn-outline btn-sm" data-action="view-friend-interaction" data-id="fr1">查看互动</button>
                             </div>
                             <div class="friend-card">
-                                <img src="https://ui-avatars.com/api/?name=Friend+C&background=F97316&color=fff&size=64" alt="好友头像" class="friend-avatar">
+                                <!-- data-src 用于懒加载 -->
+                                <img src="" data-src="https://ui-avatars.com/api/?name=Friend+C&background=F97316&color=fff&size=64" alt="好友头像" class="friend-avatar">
                                 <div class="friend-info">
                                     <span class="friend-name">时间观察者 C</span>
                                     <span class="friend-status offline">离线</span>
                                 </div>
-                                <button class="btn btn-outline btn-sm">查看互动</button>
+                                <button class="btn btn-outline btn-sm" data-action="view-friend-interaction" data-id="fr2">查看互动</button>
                             </div>
                         </div>
                         <button class="btn btn-primary mt-4"><i class="ri-user-add-line"></i> 添加好友</button>
                     </div>
                 </div>
                 <div class="empty-state hidden" id="friends-empty-state">
-                    <i class="ri-user-heart-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/06B6D4/FFFFFF?text=No+Friends" alt="无好友插画" class="empty-illustration">
+                    <i class="ri-user-heart-line empty-icon hidden"></i>
                     <p class="empty-message">还没有任何好友哦。</p>
                     <button class="btn-outline">添加你的第一个好友</button>
                 </div>
@@ -250,10 +277,12 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                     <div class="analytics-dashboard hidden">
@@ -261,18 +290,26 @@
                         <div class="analytics-card">
                             <h4>情绪趋势分析</h4>
                             <p>你最近的情绪波动较大，需关注压力管理。</p>
-                            <div class="chart-placeholder"></div>
+                            <!-- Chart.js 容器 -->
+                            <canvas id="emotionChart"></canvas>
                         </div>
                         <div class="analytics-card">
                             <h4>主题分布</h4>
                             <p>主要关注未来科技和历史文明。</p>
-                            <div class="chart-placeholder"></div>
+                            <!-- Chart.js 容器 -->
+                            <canvas id="themeChart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h4>生活模式识别</h4>
+                            <p>规律的作息有助于提升日记质量。</p>
                         </div>
                         <button class="btn btn-outline mt-4"><i class="ri-download-line"></i> 生成完整报告</button>
                     </div>
                 </div>
                 <div class="empty-state hidden" id="analytics-empty-state">
-                    <i class="ri-pie-chart-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/6366F1/FFFFFF?text=No+Analytics" alt="无分析插画" class="empty-illustration">
+                    <i class="ri-pie-chart-line empty-icon hidden"></i>
                     <p class="empty-message">暂无数据分析报告可显示。</p>
                 </div>
             </section>
@@ -284,11 +321,13 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                     <div class="user-settings-form hidden">
@@ -331,7 +370,9 @@
                     </div>
                 </div>
                 <div class="empty-state hidden" id="settings-empty-state">
-                    <i class="ri-tools-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/EF4444/FFFFFF?text=No+Settings" alt="无设置插画" class="empty-illustration">
+                    <i class="ri-tools-line empty-icon hidden"></i>
                     <p class="empty-message">设置加载失败。</p>
                 </div>
             </section>
@@ -343,15 +384,19 @@
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                         <div class="skeleton-api-card">
                             <div class="skeleton-line short"></div>
                             <div class="skeleton-line long"></div>
+                            <div class="skeleton-line medium"></div>
                         </div>
                     </div>
                 </div>
                 <div class="empty-state hidden" id="api-docs-empty-state">
-                    <i class="ri-file-code-line empty-icon"></i>
+                    <!-- 新增：空状态插画 -->
+                    <img src="https://via.placeholder.com/180x180/6366F1/FFFFFF?text=No+API+Docs" alt="无API文档插画" class="empty-illustration">
+                    <i class="ri-file-code-line empty-icon hidden"></i>
                     <p class="empty-message">暂无 API 文档可显示。</p>
                 </div>
             </section>
@@ -390,16 +435,18 @@
                 <!-- 模态框内容将在这里渲染 -->
                 <!-- 日记编辑表单的富文本模拟和新字段UI -->
                 <form id="diary-form">
-                    <div class="form-group">
+                    <div class="form-group" id="diary-title-group">
                         <label for="diary-title">标题</label>
                         <input type="text" id="diary-title" placeholder="日记标题" required>
+                        <p class="error-message hidden" id="diary-title-error"></p>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="diary-date-group">
                         <label for="diary-date">日期</label>
                         <input type="date" id="diary-date" required>
+                        <p class="error-message hidden" id="diary-date-error"></p>
                     </div>
-                    <div class="form-group">
-                        <label for="diary-content">内容</label>
+                    <div class="form-group" id="diary-content-group">
+                        <label for="diary-content-editor">内容</label>
                         <div class="rich-text-editor-toolbar">
                             <button type="button" class="editor-btn" data-command="bold"><i class="ri-bold"></i></button>
                             <button type="button" class="editor-btn" data-command="italic"><i class="ri-italic"></i></button>
@@ -409,7 +456,7 @@
                             <span class="voice-status hidden" id="voice-status">录音中...</span>
                         </div>
                         <div id="diary-content-editor" class="rich-text-editor-content" contenteditable="true" placeholder="记录你的时间旅行..."></div>
-                        <!-- <textarea id="diary-content" rows="10" placeholder="记录你的时间旅行..." required></textarea> -->
+                        <p class="error-message hidden" id="diary-content-error"></p>
                     </div>
                     <div class="form-group">
                         <label for="diary-template">选择模板</label>
@@ -447,9 +494,13 @@
         </div>
     </div>
 
+    <!-- 新增：Toast 通知容器 -->
+    <div id="toast-container" class="toast-container"></div>
+
     <script src="js/data.js"></script>
     <script src="js/modal.js"></script>
     <script src="js/uiRenderer.js"></script>
+    <script src="js/toast.js"></script> <!-- 新增 Toast 模块 -->
     <script src="js/eventHandlers.js"></script>
     <script src="js/main.js"></script>
 </body>
