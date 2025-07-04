@@ -29,7 +29,7 @@ describe('Diary Routes', () => {
       });
 
     authToken = loginRes.body.other.token;
-    console.log('登录返回的token:', authToken);
+    //console.log('登录返回的token:', authToken);
   });
 
   after(async () => {
@@ -69,7 +69,7 @@ describe('Diary Routes', () => {
       expect(res.body.metadata.wordCount).to.be.greaterThan(0);
 
       testDiaryId = Number(res.body.id);
-      console.log('登录返回的token:', testDiaryId);
+      //console.log('登录返回的token:', testDiaryId);
     });
 
     it('应返回400错误 (缺少标题)', async () => {

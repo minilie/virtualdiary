@@ -28,7 +28,7 @@ const authenticate = (
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
     req.userId = decoded.id;
-    console.log('Decoded token:', decoded);
+    //console.log('Decoded token:', decoded);
     next();
   } catch (err) {
     res.status(401).json({ error: 'Invalid token' });
@@ -205,7 +205,7 @@ router.put(
 
     try {
       const diaryId = req.params.diaryId;
-      console.log('找寻的id', diaryId);
+      //console.log('找寻的id', diaryId);
       const userId = req.userId;
       if (!userId) {
         res.status(401).json({ error: 'Unauthorized' });
