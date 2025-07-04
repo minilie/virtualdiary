@@ -22,13 +22,13 @@ router.post(
   async (req: Request<{}, {}, PersonalitySetupRequest>, res: Response<OkResponse | ErrorResponse>) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      void res.status(400).json({ error: 'Validation failed', details: errs.array() });
+      void res.status(400).json({ message: 'Validation failed', details: errs.array() });
       return;
     }
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        void res.status(401).json({ error: 'Unauthorized' });
+        void res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
@@ -37,7 +37,7 @@ router.post(
       return;
     } catch (err) {
       console.error(err);
-      void res.status(500).json({ error: 'Server error' });
+      void res.status(500).json({ message: 'Server error' });
       return;
     }
   }
@@ -58,13 +58,13 @@ router.put(
   async (req: Request<{}, {}, UserProfile>, res: Response<OkResponse | ErrorResponse>) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
-      void res.status(400).json({ error: 'Validation failed', details: errs.array() });
+      void res.status(400).json({ message: 'Validation failed', details: errs.array() });
       return;
     }
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        void res.status(401).json({ error: 'Unauthorized' });
+        void res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
@@ -73,7 +73,7 @@ router.put(
       return;
     } catch (err) {
       console.error(err);
-      void res.status(500).json({ error: 'Server error' });
+      void res.status(500).json({ message: 'Server error' });
       return;
     }
   }
@@ -84,20 +84,20 @@ router.get(
     try {
       const userId = (req as any).user?.id;
       if (!userId) {
-        void res.status(401).json({ error: 'Unauthorized' });
+        void res.status(401).json({ message: 'Unauthorized' });
         return;
       }
 
       const user = await User.getUserProfile(userId);
       if (!user) {
-        void res.status(404).json({ error: 'User not found' });
+        void res.status(404).json({ message: 'User not found' });
         return;
       }
 
       void res.json({ user });
     } catch (err) {
       console.error(err);
-      void res.status(500).json({ error: 'Server error' });
+      void res.status(500).json({ message: 'Server error' });
     }
   }
 );
