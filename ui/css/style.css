@@ -1672,16 +1672,12 @@ textarea {
     transition: color var(--transition-duration); /* 新增：颜色过渡 */
 }
 
-.chart-placeholder {
-    background-color: var(--color-border);
-    height: 150px;
-    border-radius: var(--border-radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-light);
-    font-size: var(--font-size-sm);
-    transition: background-color var(--transition-duration), color var(--transition-duration); /* 新增：颜色过渡 */
+.analytics-card canvas {
+    width: 100% !important; /* 确保宽度填充父容器 */
+    height: 250px !important; /* 设置一个固定高度，你可以根据需要调整 */
+    /* 使用 !important 通常是为了覆盖 Chart.js 可能设置的行内样式，
+       在你的 Chart.js 配置 maintainAspectRatio: false 的情况下，
+       通常 Chart.js 会尊重 CSS 高度，但加上更保险 */
 }
 
 /* 设置模块 */
