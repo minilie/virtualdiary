@@ -16,8 +16,8 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 
 
 class User {
-  constructor({email, password, nickname}) {
-    //this.id = id; // 添加 id 属性
+  constructor({id, email, password, nickname}) {
+    this.id = id;
     this.email = email;
     this.password = password;
     this.nickname = nickname;
@@ -43,7 +43,7 @@ class User {
             }
             return reject(err);
           }
-        
+          this.id = this.lastID; 
           resolve(this);
         }
       );
@@ -141,6 +141,7 @@ class User {
       });
     });
   }
+
   static findById(userId) {
     return new Promise((resolve, reject) => {
       db.get('SELECT * FROM users WHERE id = ?', [userId], (err, row) => {

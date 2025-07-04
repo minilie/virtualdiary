@@ -10,11 +10,11 @@ export interface UserLogin {
 }
 
 export interface ErrorResponse {
-  error: string;
+  message: string;
   details?: any;
 }
 
 export interface OkResponse{
-    msg: string;
-    other?: any;
+  msg: string;
+  other?: any;
 }

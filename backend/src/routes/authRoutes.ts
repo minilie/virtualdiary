@@ -43,7 +43,7 @@ router.post('/register',
       
       // 返回验证错误响应
       res.status(400).json({
-        error: 'Invalid email or password',
+        message: 'Invalid email or password',
         details: errorDetails
       });
       return;
@@ -56,7 +56,7 @@ router.post('/register',
       const existingUser = await User.findOne({ email });
       if (existingUser) {
         res.status(409).json({ 
-          error: 'Email already registered' 
+          message: 'Email already registered' 
         });
         return;
       }
@@ -82,7 +82,7 @@ router.post('/register',
       
       // 返回服务器错误响应
       res.status(500).json({ 
-        error: 'Server error',
+        message: 'Server error',
       });
     }
   }
@@ -124,7 +124,7 @@ router.post('/login',
       if (!user || !validPassword) {
         await bcrypt.compare('dummy', dummyHash); // 平衡响应时间
         return void res.status(401).json({ 
-          error: 'Invalid credentials' 
+          message: 'Invalid credentials' 
         });
       }
 
@@ -155,7 +155,7 @@ router.post('/login',
     } catch (err) {
       console.error('登录错误:', err);
       res.status(500).json({ 
-        error: 'Server error'
+        message: 'Server error'
       });
     }
   }
@@ -190,7 +190,7 @@ router.post('/logout',
     } catch (err) {
       console.error('登出错误:', err);
       res.status(500).json({ 
-        error: 'Server error'
+        message: 'Server error'
       });
     }
   }
