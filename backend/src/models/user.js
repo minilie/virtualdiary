@@ -139,6 +139,20 @@ class User {
       });
     });
   }
+  // 在 User 类中添加
+  /**
+   * 通过ID查找用户
+   * @param {number} id 
+   * @returns {Promise<Object>}
+   */
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      db.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
+        if (err) return reject(err);
+        resolve(row || null);
+      });
+    });
+  }
 }
 
 module.exports = User;
