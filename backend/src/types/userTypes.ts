@@ -14,7 +14,6 @@ export interface PersonalitySetupRequest {
   goals: string[];
   communicationStyle: string;
 }
-export interface OkResponse { msg: string; other?: any; }
 export interface UserProfileResponse {
   user: {
     id: number;

@@ -1,3 +1,6 @@
+/* =========================
+  输入参数类型的定义
+======================= */
 export interface UserRegister {
   email: string;
   password: string;
@@ -9,7 +12,9 @@ export interface UserLogin {
   password: string;
 }
 
-export interface OkResponse{
-  msg: string;
-  other?: any;
+/* =========================
+  输出类型的定义
+======================= */
+export interface LoginResponse {
+  token: string;
 }

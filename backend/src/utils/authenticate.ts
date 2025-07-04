@@ -24,7 +24,7 @@ export function authenticate(
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
-    req.userId = decoded.id; // 修复5：通过声明合并添加userId
+    req.userId = decoded.userId; // 修复5：通过声明合并添加userId
     next();
   } catch (err) {
     // 修复6：区分错误类型

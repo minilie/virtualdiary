@@ -21,12 +21,3 @@ export interface DiaryListResponse {
   limit: number;
   total: number;
 }
-
-export interface ErrorResponse {
-  error: string;
-  details?: any;
-}
-
-export interface OkResponse {
-  msg: string;
-}

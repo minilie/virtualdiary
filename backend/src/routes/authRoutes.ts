@@ -2,8 +2,8 @@ import express, { Request, Response, Router, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { body, validationResult, Result, ValidationError } from 'express-validator';
-import { UserLogin, UserRegister, OkResponse } from '../types/authTypes';
-import { ErrorResponse } from '../types/generalTypes';
+import { UserLogin, UserRegister, LoginResponse } from '../types/authTypes';
+import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
 
 const router: Router = express.Router();
@@ -108,7 +108,7 @@ router.post('/register',
  * - 500 Internal Server Error: 服务器内部错误
  */
 router.post('/login', 
-  async (req: Request<{}, {}, UserLogin>, res: Response<OkResponse | ErrorResponse>) => {
+  async (req: Request<{}, {}, UserLogin>, res: Response<LoginResponse | ErrorResponse>) => {
     try {
       const { email, password } = req.body;
 
@@ -131,7 +131,7 @@ router.post('/login',
 
       // 生成防篡改JWT（包含用户ID和过期时间）
       const token = jwt.sign(
-        { id: user.id }, 
+        { userId: user.id }, 
         JWT_SECRET, 
         { expiresIn: TOKEN_EXPIRY }
       );
@@ -147,12 +147,7 @@ router.post('/login',
       });
 
       // 返回登录成功响应（不含敏感信息）
-      res.json({ 
-        msg: 'Login successfully',
-        other: {
-          'token': token
-        }
-      });
+      res.json({ token: token });
     } catch (err) {
       console.error('登录错误:', err);
       res.status(500).json({ 

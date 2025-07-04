@@ -16,8 +16,8 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 
 
 class User {
-  constructor({id, email, password, nickname}) {
-    this.id = id;
+  constructor(params) {
+    if (params.id) this.id = params.id;
     this.email = email;
     this.password = password;
     this.nickname = nickname;
@@ -25,26 +25,15 @@ class User {
   
   // 保存用户到数据库（实际插入操作）
   save() {
+    const that = this; // 保存User实例引用
     return new Promise((resolve, reject) => {
-      const query = `
-        INSERT INTO users (email, password, nickname)
-        VALUES (?, ?, ?)
-      `;
-      
-      db.run(query, 
-        [this.email, this.password, this.nickname],
-        function(err) {
-          if (err) {
-            // 处理特定错误
-            if (err.message.includes('UNIQUE')) {
-              const uniqueError = new Error('Email already exists');
-              uniqueError.code = 409;
-              return reject(uniqueError);
-            }
-            return reject(err);
-          }
-          this.id = this.lastID; 
-          resolve(this);
+      db.run(
+        `INSERT INTO users (email, password, nickname) VALUES (?, ?, ?)`,
+        [that.email, that.password, that.nickname],
+        function (err) {
+          if (err) { /* 错误处理 */ }
+          that.id = this.lastID; // 将新ID绑定到User实例
+          resolve(that);
         }
       );
     });

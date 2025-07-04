@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import { PersonalitySetupRequest, UserProfile, OkResponse, UserProfileResponse} from '../types/userTypes';
-import { ErrorResponse } from '../types/generalTypes';
+import { PersonalitySetupRequest, UserProfile, UserProfileResponse} from '../types/userTypes';
+import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
 
 const router: Router = express.Router();
