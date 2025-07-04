@@ -56,3 +56,25 @@
     --transition-duration: 0.2s;
     --transition-timing-function: ease-in-out;
 }
+
+body.dark-mode {
+    /* 暗色模式颜色 */
+    --color-primary: #8183F7; /* 稍亮的紫色，在深色背景下更显眼 */
+    --color-primary-light: #9FA1FA;
+    --color-primary-dark: #6366F1; /* 暗色模式下的 primary-dark */
+
+    --color-text-dark: #F8FAFC; /* 深色背景下的主要文字颜色 */
+    --color-text-light: #E2E8F0;
+    --color-text-lighter: #94A3B8;
+
+    --color-background: #1A202C; /* 深灰或深蓝，作为主背景 */
+    --color-surface: #2D3748;    /* 卡片、面板等表面颜色 */
+    --color-border: #4A5568;     /* 边框颜色 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.2); /* 阴影在暗色模式下可能需要更深 */
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
+    /* 特殊组件颜色调整 */
+    .api-method.get { background-color: #1A4D2E; color: #6EE7B7; }
+    .api-method.post { background-color: #2F366F; color: #A5B6FF; }
+    /* ...其他颜色需要为暗色模式重新定义 */
+}

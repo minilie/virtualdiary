@@ -1,5 +1,24 @@
 /* css/_api_docs.css */
+/* css/_animations.css (新建) 或 style.css */
+.fade-in-up {
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
 
+.fade-out-down {
+    animation: fadeOutDown 0.4s ease-in forwards;
+    opacity: 1;
+    transform: translateY(0);
+}
+@keyframes fadeOutDown {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(20px); }
+}
 .api-docs-container {
     max-width: 900px; /* 限制宽度，使其更易读 */
     margin: 0 auto; /* 水平居中 */

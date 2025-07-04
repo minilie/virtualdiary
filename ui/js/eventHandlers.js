@@ -347,6 +347,40 @@ window.EventHandlers = ((UIRenderer, Modal, mockData) => { // 接收 UIRenderer,
      * 初始化所有事件监听器
      */
     const init = () => {
+                // 在 eventHandlers.js 的 init 函数中添加
+        const themeToggleBtn = document.getElementById('theme-toggle-btn');
+        const body = document.body;
+
+        // 加载保存的主题
+        const loadTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                if (themeToggleBtn) themeToggleBtn.querySelector('i').className = 'ri-sun-line'; // 太阳图标
+            } else {
+                body.classList.remove('dark-mode');
+                if (themeToggleBtn) themeToggleBtn.querySelector('i').className = 'ri-moon-line'; // 月亮图标
+            }
+        };
+
+        // 切换主题
+        const toggleTheme = () => {
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                if (themeToggleBtn) themeToggleBtn.querySelector('i').className = 'ri-moon-line';
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                if (themeToggleBtn) themeToggleBtn.querySelector('i').className = 'ri-sun-line';
+            }
+        };
+
+        // 初始化时调用
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', toggleTheme);
+            loadTheme(); // 页面加载时应用主题
+        }
         console.log('[EventHandlers] EventHandlers.init called.'); // 关键日志
 
         // 侧边栏导航点击

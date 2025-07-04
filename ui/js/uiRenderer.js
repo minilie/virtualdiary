@@ -1,5 +1,20 @@
 // js/uiRenderer.js
-
+// uiRenderer.js 中添加一个辅助函数
+const lazyLoadImages = () => {
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+                observer.unobserve(img);
+            }
+        });
+    });
+    lazyImages.forEach(img => imageObserver.observe(img));
+};
+// 在 renderUserProfile 和 renderFriends 函数渲染图片后调用 lazyLoadImages()
 // 将 UIRenderer 模块挂载到 window 对象
 window.UIRenderer = (() => {
     const elements = {
@@ -670,19 +685,75 @@ window.UIRenderer = (() => {
         });
 
         // 语音输入按钮（占位符）
+                // uiRenderer.js, renderDiaryForm 函数内
         if (elements.voiceInputBtn) {
-            elements.voiceInputBtn.onclick = null; // 避免重复绑定
+            elements.voiceInputBtn.onclick = null; // 清除旧事件
             elements.voiceInputBtn.onclick = () => {
-                console.log('Voice input button clicked.');
-                // 模拟语音输入效果
-                if (elements.voiceStatus) elements.voiceStatus.classList.remove('hidden');
-                setTimeout(() => {
-                    if (elements.voiceStatus) elements.voiceStatus.classList.add('hidden');
-                    alert('语音输入功能正在开发中...');
-                    // 在实际项目中，这里会调用Web Speech API 或第三方语音识别服务
-                    // if (contentEditor) contentEditor.innerHTML += " [模拟语音转文字内容]"; // 模拟添加内容
-                }, 1500);
+                if (!('webkitSpeechRecognition' in window)) {
+                    alert('抱歉，您的浏览器不支持语音输入。请使用 Chrome 浏览器。');
+                    return;
+                }
+
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false; // 只进行一次识别
+                recognition.interimResults = true; // 显示临时结果
+                recognition.lang = 'zh-CN'; // 设置语言为中文普通话
+
+                let finalTranscript = '';
+
+                recognition.onstart = () => {
+                    if (elements.voiceStatus) {
+                        elements.voiceStatus.textContent = '聆听中...';
+                        elements.voiceStatus.classList.remove('hidden');
+                    }
+                    elements.voiceInputBtn.disabled = true; // 禁用按钮防止重复点击
+                };
+
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            finalTranscript += event.results[i][0].transcript;
+                        } else {
+                            interimTranscript += event.results[i][0].transcript;
+                        }
+                    }
+                    // 在富文本编辑器中显示临时或最终结果
+                    if (elements.diaryContentEditor) {
+                        // 为了不覆盖用户手写内容，可以考虑在末尾追加或在特定位置插入
+                        elements.diaryContentEditor.innerHTML = (elements.diaryContentEditor.__originalContent || '') + finalTranscript + interimTranscript;
+                    }
+                    if (elements.voiceStatus) elements.voiceStatus.textContent = `聆听中: ${interimTranscript}`;
+                };
+
+                recognition.onend = () => {
+                    if (elements.voiceStatus) {
+                        elements.voiceStatus.textContent = '识别完成。';
+                        setTimeout(() => elements.voiceStatus.classList.add('hidden'), 500);
+                    }
+                    elements.voiceInputBtn.disabled = false;
+                    if (elements.diaryContentEditor) {
+                        elements.diaryContentEditor.__originalContent = null; // 清除临时内容
+                    }
+                    console.log('Final transcript:', finalTranscript);
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Speech recognition error', event.error);
+                    if (elements.voiceStatus) {
+                        elements.voiceStatus.textContent = `错误: ${event.error}`;
+                        setTimeout(() => elements.voiceStatus.classList.add('hidden'), 2000);
+                    }
+                    elements.voiceInputBtn.disabled = false;
+                    alert(`语音输入失败: ${event.error}. 请检查麦克风或权限。`);
+                };
+
+                recognition.start();
             };
+            // 存储原内容，以便在显示临时结果时不会覆盖
+            if (elements.diaryContentEditor) {
+                elements.diaryContentEditor.__originalContent = elements.diaryContentEditor.innerHTML;
+            }
         }
     };
 
