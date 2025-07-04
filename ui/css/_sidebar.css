@@ -6,10 +6,11 @@
     padding: var(--spacing-6);
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* 将内容推到顶部和底部 */
+    justify-content: space-between;
     border-right: 1px solid var(--color-border);
     box-shadow: var(--shadow-md);
     flex-shrink: 0;
+    transition: background-color var(--transition-duration), border-color var(--transition-duration), box-shadow var(--transition-duration); /* 新增：颜色过渡 */
 }
 
 .sidebar-header {
@@ -25,6 +26,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-2);
+    transition: color var(--transition-duration); /* 新增：颜色过渡 */
 }
 
 .app-title i {
@@ -47,6 +49,7 @@
     border: 3px solid var(--color-primary-light);
     box-shadow: var(--shadow-sm);
     margin-bottom: var(--spacing-3);
+    transition: border-color var(--transition-duration), box-shadow var(--transition-duration); /* 新增：颜色过渡 */
 }
 
 .user-info {
@@ -59,11 +62,13 @@
     font-size: var(--font-size-lg);
     font-weight: 600;
     color: var(--color-text-dark);
+    transition: color var(--transition-duration); /* 新增：颜色过渡 */
 }
 
 .user-email {
     font-size: var(--font-size-sm);
     color: var(--color-text-lighter);
+    transition: color var(--transition-duration); /* 新增：颜色过渡 */
 }
 
 .main-nav {
@@ -86,7 +91,7 @@
     color: var(--color-text-light);
     font-size: var(--font-size-md);
     font-weight: 500;
-    transition: background-color var(--transition-duration), color var(--transition-duration);
+    transition: background-color var(--transition-duration), color var(--transition-duration), box-shadow var(--transition-duration); /* 新增：更多过渡属性 */
 }
 
 .main-nav .nav-item i {
@@ -99,19 +104,21 @@
 }
 
 .main-nav .nav-item.active {
-    background-color: var(--color-primary);
+    /* 新增：激活状态下的渐变背景 */
+    background: linear-gradient(to right, var(--color-primary-light), var(--color-primary));
     color: var(--color-surface);
     box-shadow: var(--shadow-sm);
 }
 
 .main-nav .nav-item.active:hover {
-    background-color: var(--color-primary-dark);
+    background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary)); /* 鼠标悬停时渐变颜色变深 */
 }
 
 .sidebar-footer {
     padding-top: var(--spacing-6);
     border-top: 1px solid var(--color-border);
     text-align: center;
+    transition: border-color var(--transition-duration); /* 新增：边框颜色过渡 */
 }
 
 .sidebar-footer .btn {
