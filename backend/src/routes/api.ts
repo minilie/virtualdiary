@@ -3,6 +3,7 @@ import authRoutes from './authRoutes'; // 2. 省略 `.ts` 扩展名
 import userRoutes from './userRoutes';
 import diaryRoutes from './diaryRoutes';
 import friendRoutes from './friendRoutes';
+import futureRoutes from './futureRoutes';
 import feedbackRoutes from './feedbackRoutes';
 const router: Router = express.Router();
 
@@ -12,19 +13,11 @@ router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
 // 日记管理路由
 router.use('/diary', diaryRoutes); 
-// 反馈管理路由
+// “未来的你”路由
+router.use('/diary', futureRoutes)
+// 用户反馈管理路由
 router.use('/feedback', feedbackRoutes);
-
-// // 记忆管理路由
-// const memoryRoutes = require('./memoryRoutes');
-// router.use('/memory', memoryRoutes);
-
-// // 决策管理路由
-// const decisionRoutes = require('./decisionRoutes');
-// router.use('/decision', decisionRoutes);
-
-// // 好友管理路由
-// const friendRoutes = require('./friendRoutes');
+// 好友管理路由
 router.use('/friends', friendRoutes); 
 
 // // 设置管理路由

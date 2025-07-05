@@ -5,7 +5,7 @@ import { body, validationResult, Result, ValidationError } from 'express-validat
 import { UserLogin, UserRegister, LoginResponse } from '../types/authTypes';
 import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
-import { authenticate } from '@/utils/authenticate';
+import { authenticate, AuthenticatedRequest} from '@/utils/authenticate';
 
 const router: Router = express.Router();
 
@@ -177,7 +177,7 @@ router.post('/login',
 router.post(
   '/logout', 
   authenticate,
-  (_req: Request, res: Response<OkResponse | ErrorResponse>) => {
+  (_req: AuthenticatedRequest, res: Response<OkResponse | ErrorResponse>) => {
     try {
       // 清除安全Cookie（使用与登录相同的安全配置）
       res.clearCookie('token', {
@@ -185,6 +185,8 @@ router.post(
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict'
       });
+
+      console.log(_req.userId);
 
       res.json({ msg: 'Logout successfully' });
     } catch (err) {

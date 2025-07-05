@@ -55,6 +55,7 @@ db.serialize(() => {
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
   )`);*/
 });
+
 // 启用外键约束
 db.run('PRAGMA foreign_keys = ON', (err) => {
   if (err) {
