@@ -23,6 +23,12 @@ export interface ConversationMessage {
   createdAt: Date; // 创建时间
 }
 
+interface ConversationRow {
+  message: string;
+  response: string;
+  createdAt: string; // SQLite返回时间字符串
+}
+
 // 反馈数据结构
 export interface FutureFeedbackData {
   id?: number; // 自增ID
@@ -118,38 +124,40 @@ class FutureFeedback {
    * 插入新反馈到数据库
    */
   private async insert(): Promise<FutureFeedback> {
-    // 序列化评价标签
+    const that = this; // 保存类实例引用
     const ratingTags = this.rating?.tags ? JSON.stringify(this.rating.tags) : null;
     
     return new Promise((resolve, reject) => {
-      db.run(
+        db.run(
         `INSERT INTO future_feedbacks 
         (diaryId, userId, type, style, content, rating_score, rating_feedback, rating_tags) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
-          this.diaryId,
-          this.userId,
-          this.type,
-          this.style,
-          this.content,
-          this.rating?.score || null,
-          this.rating?.feedback || null,
-          ratingTags
+            this.diaryId,
+            this.userId,
+            this.type,
+            this.style,
+            this.content,
+            this.rating?.score || null,
+            this.rating?.feedback || null,
+            ratingTags
         ],
-        function (err: any) {
-          if (err) return reject(err);
-          
-          // 获取新创建的反馈ID
-          this.id = this.lastID;
-          
-          // 如果有对话记录，保存它们
-          if (this.conversations && this.conversations.length > 0) {
-            this.saveConversations().then(() => resolve(this)).catch(reject);
-          } else {
-            resolve(this);
-          }
-        }.bind(this)
-      );
+        function (this: { lastID: number }, err: any) {
+            if (err) return reject(err);
+            
+            // 1. 设置新创建的 ID
+            that.id = this.lastID;
+            
+            // 2. 保存关联的对话记录
+            if (that.conversations && that.conversations.length > 0) {
+            that.saveConversations()
+                .then(() => resolve(that))
+                .catch(reject);
+            } else {
+            resolve(that);
+            }
+        }
+        );
     });
   }
 
@@ -296,13 +304,13 @@ class FutureFeedback {
         (err, rows) => {
           if (err) return reject(err);
           
-          const conversations = rows.map(row => ({
-            message: row.message,
-            response: row.response,
-            createdAt: new Date(row.createdAt)
-          }));
-          
-          resolve(conversations);
+        const conversations = (rows as ConversationRow[]).map(row => ({
+          message: row.message,
+          response: row.response,
+          createdAt: new Date(row.createdAt) // ✅ 安全转换
+        }));
+        
+        resolve(conversations);
         }
       );
     });
