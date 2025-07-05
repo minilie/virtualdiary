@@ -1,10 +1,10 @@
 import express, { Router, Request, Response } from 'express';
 import { authenticate, AuthenticatedRequest } from '../utils/authenticate';
 import Diary from '../models/diary';
-import {FutureFeedbackData, FeedbackType, FeedbackStyle } from '../models/feedback';
+import {FutureFeedbackData, FeedbackType, FeedbackStyle } from '../types/feedbackTypes';
 import FutureFeedback from '../models/feedback';
 import { ErrorResponse } from '../types/generalTypes';
-import AIService from '../services/AIService'; // 假设的AI服务
+import AIService from '../utils/AIService'; // 假设的AI服务
 
 const router: Router = express.Router();
 

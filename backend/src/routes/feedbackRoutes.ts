@@ -1,9 +1,9 @@
 import express, { Router, Response } from 'express';
 import { authenticate, AuthenticatedRequest } from '../utils/authenticate';
-import { ConversationMessage, RatingData } from '../models/feedback';
+import { ConversationMessage, RatingData } from '../types/feedbackTypes';
 import FutureFeedback from '../models/feedback';
 import { OkResponse, ErrorResponse } from '../types/generalTypes';
-import AIService from '../services/AIService'; // 假设的AI服务
+import AIService from '../utils/AIService'; // 假设的AI服务
 
 const router: Router = express.Router();
 
