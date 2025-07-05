@@ -11,14 +11,22 @@ const TEST_USER = {
   nickname: 'testUser'
 }
 
+const TEST_USER2 = {
+  email: 'test2@example.com',
+  password: '1145141919810',
+  nickname: 'testUser2'
+}
+
 describe('Auth Routes', () => {
   // 测试前清理数据库
   before(async () => {
     await User.delete({'email': TEST_USER.email});
+    await User.delete({'email': TEST_USER2.email});
   });
 
   after(async () => {
     await User.delete({'email': TEST_USER.email});
+    await User.delete({'email': TEST_USER2.email});
   });
 
   describe('POST /register', () => {
@@ -30,11 +38,23 @@ describe('Auth Routes', () => {
       
       expect(response.status).to.equal(201);
       expect(response.body).to.deep.equal({ msg: 'success' });
-      
-      // 验证数据库记录
+    
       const user = await User.findOne({ email: TEST_USER.email });
+      
       expect(user).to.not.be.null;
       expect(user?.nickname).to.equal(TEST_USER.nickname);
+
+      const response2 = await request(app)
+        .post('/api/auth/register')
+        .send(TEST_USER2);
+
+      expect(response2.status).to.equal(201);
+      expect(response2.body).to.deep.equal({ msg: 'success' });
+      
+      // 验证数据库记录
+      const user2 = await User.findOne({ email: TEST_USER2.email });
+      expect(user2).to.not.be.null;
+      expect(user2?.nickname).to.equal(TEST_USER2.nickname);
     });
 
     // 测试用例2: 邮箱格式无效
@@ -48,7 +68,7 @@ describe('Auth Routes', () => {
         });
       
       expect(response.status).to.equal(400);
-      expect(response.body).to.have.property('error', 'Invalid email or password');
+      expect(response.body).to.have.property('message', 'Invalid email or password');
       expect(response.body.details).to.be.an('array');
     });
 
@@ -63,7 +83,7 @@ describe('Auth Routes', () => {
         });
       
       expect(response.status).to.equal(400);
-      expect(response.body.error).to.include('Invalid email or password');
+      expect(response.body.message).to.include('Invalid email or password');
     });
 
     // 测试用例4: 邮箱已被注册
@@ -74,7 +94,7 @@ describe('Auth Routes', () => {
         .send(TEST_USER);
       
       expect(response.status).to.equal(409);
-      expect(response.body.error).to.equal('Email already registered');;
+      expect(response.body.message).to.equal('Email already registered');;
     });
 
     // // 测试用例5: 数据库错误处理
@@ -116,8 +136,7 @@ describe('Auth Routes', () => {
         });
       
       expect(response.status).to.equal(200);
-      expect(response.body).to.have.property('msg', 'Login successfully');
-      expect(response.body.other).to.have.property('token');
+      expect(response.body).to.have.property('token');
       
       // 验证安全Cookie设置
       const setCookieHeader = response.headers['set-cookie'];
@@ -143,7 +162,7 @@ describe('Auth Routes', () => {
       // 验证计时攻击防护
       expect(duration).to.be.at.least(30); // 确保有足够的延迟
       expect(response.status).to.equal(401);
-      expect(response.body).to.have.property('error', 'Invalid credentials');
+      expect(response.body).to.have.property('message', 'Invalid credentials');
     });
 
     it('应拒绝登录 (错误密码)', async () => {
@@ -160,7 +179,7 @@ describe('Auth Routes', () => {
       // 验证计时攻击防护
       expect(duration).to.be.at.least(30);
       expect(response.status).to.equal(401);
-      expect(response.body).to.have.property('error', 'Invalid credentials');
+      expect(response.body).to.have.property('message', 'Invalid credentials');
     });
 
     it('应返回401错误 (缺失邮箱)', async () => {
@@ -169,7 +188,7 @@ describe('Auth Routes', () => {
         .send({ password: TEST_USER.password });
       
       expect(response.status).to.equal(401);
-      expect(response.body).to.have.property('error');
+      expect(response.body).to.have.property('message', 'Invalid credentials');
     });
 
     it('应返回500错误 (缺失密码)', async () => {
@@ -178,7 +197,7 @@ describe('Auth Routes', () => {
         .send({ email: TEST_USER.email });
       
       expect(response.status).to.equal(500);
-      expect(response.body).to.have.property('error');
+      expect(response.body).to.have.property('message', 'Server error');
     });
 
     it('应返回500错误 (数据库异常)', async () => {
@@ -197,7 +216,7 @@ describe('Auth Routes', () => {
       User.findOne = originalFindOne;
       
       expect(response.status).to.equal(500);
-      expect(response.body).to.have.property('error', 'Server error');
+      expect(response.body).to.have.property('message', 'Server error');
     });
   });
 
@@ -213,13 +232,23 @@ describe('Auth Routes', () => {
           password: TEST_USER.password
         });
       
-      authToken = loginResponse.body.other.token;
+      authToken = loginResponse.body.token;
+    });
+
+    it('未认证用户访问应返回401错误', async () => {
+      const response = await request(app)
+        .post('/api/auth/logout')
+        .set('Cookie', ['token=invalid_token']); // 无效token
+      
+      expect(response.status).to.equal(401);
+      expect(response.body).to.have.property('message');
     });
 
     it('应成功登出并清除Cookie', async () => {
       const response = await request(app)
         .post('/api/auth/logout')
-        .set('Cookie', [`token=${authToken}`]);
+        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`);
       
       expect(response.status).to.equal(200);
       expect(response.body).to.have.property('msg', 'Logout successfully');

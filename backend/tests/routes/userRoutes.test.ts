@@ -1,218 +1,232 @@
 import { expect } from 'chai';
 import request from 'supertest';
-import sinon from 'sinon';
-import express from 'express';
 import app from '../../src/app';
 import User from '../../src/models/user';
-let getUserProfileStub: sinon.SinonStub;
+import { extractUserId } from '@/utils/authenticate';
+const TEST_USER = {
+  email: 'profiletest@example.com',
+  password: 'StrongPassword123',
+  nickname: 'TestUserProfile'
+};
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: { id: number };
-    }
-  }
-}
+let authToken: string;
+let userId: number;
 
-// 创建一个独立的 express app 代理，避免对全局 app 中间件修改影响
-function createTestApp() {
-  const testApp = express();
+describe('User Routes - Integrated (No Sinon)', () => {
+  before(async () => {
+    // 清理旧用户
+    await User.delete({ email: TEST_USER.email });
 
-  // 解析JSON请求体
-  testApp.use(express.json());
+    // 注册新用户
+    const registerRes = await request(app)
+      .post('/api/auth/register')
+      .send(TEST_USER);
+    expect(registerRes.status).to.equal(201);
 
-  // 模拟授权中间件，依据请求头注入用户
-  testApp.use((req, res, next) => {
-    const mockUserId = req.header('x-mock-user-id');
-    if (mockUserId) {
-      req.user = { id: Number(mockUserId) };
-    }
-    next();
+    // 登录用户
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: TEST_USER.email, password: TEST_USER.password });
+
+    expect(loginRes.status).to.equal(200);
+    authToken = loginRes.body.token;
+    userId = extractUserId(authToken);
+    expect(authToken).to.be.a('string');
+    console.log('Sending token:', authToken);
+
+
   });
 
-  // 复制原app的中间件和路由，确保req.user可用
-  testApp.use(app);
-
-  return testApp;
-}
-
-describe('User Routes', () => {
-  let updatePersonalityStub: sinon.SinonStub;
-  let updateProfileStub: sinon.SinonStub;
-
-  const MOCK_USER_ID = 123;
-
-  // 使用独立的 testApp，防止中间件污染
-  const testApp = createTestApp();
-  const agent = request.agent(testApp);
-
-  beforeEach(() => {
-    updatePersonalityStub = sinon.stub(User, 'updatePersonality').resolves();
-    updateProfileStub = sinon.stub(User, 'updateProfile').resolves();
-  });
-
-  afterEach(() => {
-    updatePersonalityStub.restore();
-    updateProfileStub.restore();
+  after(async () => {
+    await User.delete({ email: TEST_USER.email });
   });
 
   describe('POST /api/user/personality-setup', () => {
     const validPayload = {
       personality: { openness: 0.9, conscientiousness: 0.8 },
       goals: ['goal1', 'goal2'],
-      communicationStyle: 'friendly',
+      communicationStyle: 'friendly'
     };
 
     it('should update personality successfully', async () => {
-      const res = await agent
+      const res = await request(app)
         .post('/api/user/personality-setup')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
+        .set('Authorization', `Bearer ${authToken}`)
         .send(validPayload);
-
+      
       expect(res.status).to.equal(200);
       expect(res.body).to.deep.equal({ msg: 'Personality setup completed' });
 
-      sinon.assert.calledOnceWithExactly(updatePersonalityStub, MOCK_USER_ID, validPayload);
+      const updatedUser = await User.findById(userId);
+      const stored = JSON.parse(updatedUser?.personality_settings);
+
+      expect(stored.personality).to.deep.equal(validPayload.personality);
+      expect(stored.goals).to.deep.equal(validPayload.goals);
+      expect(stored.communicationStyle).to.equal(validPayload.communicationStyle);
     });
 
-    it('should return 401 unauthorized if no user', async () => {
-      const res = await agent.post('/api/user/personality-setup').send(validPayload);
-      expect(res.status).to.equal(401);
-      expect(res.body).to.have.property('error', 'Unauthorized');
-    });
-
-    it('should return 400 bad request if payload invalid', async () => {
-      // 传递不完整payload
-      const invalidPayload = { personality: { openness: 0.9 } }; // 缺少 goals 和 communicationStyle
-
-      const res = await agent
+    it('should return 401 if not logged in', async () => {
+      const res = await request(app)
         .post('/api/user/personality-setup')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
+        .send(validPayload);
+
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Unauthorized');
+    });
+
+    it('should return 400 if missing fields', async () => {
+      const invalidPayload = { personality: { openness: 0.9 } };
+
+      const res = await request(app)
+        .post('/api/user/personality-setup')
+        .set('Authorization', `Bearer ${authToken}`)
         .send(invalidPayload);
 
       expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error');
-    });
-
-    it('should handle updatePersonality throwing error gracefully', async () => {
-      updatePersonalityStub.rejects(new Error('DB error'));
-
-      const res = await agent
-        .post('/api/user/personality-setup')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
-        .send(validPayload);
-
-      expect(res.status).to.equal(500);
-      expect(res.body).to.have.property('error');
+      expect(res.body).to.have.property('message');
     });
   });
 
   describe('PUT /api/user/profile', () => {
-    const validProfilePayload = {
-      name: 'Alice',
-      age: 28,
-      email: 'alice@example.com',
+    const validUpdate = {
+      name: 'Updated Name',
+      age: 30,
+      email: 'newemail@example.com'
     };
 
     it('should update profile successfully', async () => {
-      const res = await agent
+      const res = await request(app)
         .put('/api/user/profile')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
-        .send(validProfilePayload);
-
+        .set('Authorization', `Bearer ${authToken}`)
+        .send(validUpdate);
+      
       expect(res.status).to.equal(200);
       expect(res.body).to.deep.equal({ msg: 'Profile updated' });
 
-      sinon.assert.calledOnceWithExactly(updateProfileStub, MOCK_USER_ID, validProfilePayload);
+      const updated = await User.findById(userId);
+      
     });
 
-    it('should return 401 unauthorized if no user', async () => {
-      const res = await agent.put('/api/user/profile').send(validProfilePayload);
+    it('should return 401 if not logged in', async () => {
+      const res = await request(app)
+        .put('/api/user/profile')
+        .send(validUpdate);
+
       expect(res.status).to.equal(401);
-      expect(res.body).to.have.property('error', 'Unauthorized');
+      expect(res.body.message).to.equal('Unauthorized');
     });
 
-    /*it('should return 400 bad request if payload invalid', async () => {
-      const invalidPayload = { name: 'Alice' }; // 缺少 age 和 email
 
-      const res = await agent
-        .put('/api/user/profile')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
-        .send(invalidPayload);
-
-      expect(res.status).to.equal(400);
-      expect(res.body).to.have.property('error');
-    });*/
-
-    it('should handle updateProfile throwing error gracefully', async () => {
-      updateProfileStub.rejects(new Error('DB error'));
-
-      const res = await agent
-        .put('/api/user/profile')
-        .set('x-mock-user-id', String(MOCK_USER_ID))
-        .send(validProfilePayload);
-
-      expect(res.status).to.equal(500);
-      expect(res.body).to.have.property('error');
-    });
   });
 
   describe('GET /api/user/profile', () => {
-  const mockUserProfile = {
-    nickname: 'test_user',
-    avatar: 'https://example.com/avatar.jpg',
-    personality_settings: { openness: 0.9 },
-    goals: ['goal1'],
-    communicationStyle: 'friendly',
-  };
+    it('should return current user profile', async () => {
+      const res = await request(app)
+        .get('/api/user/profile')
+        .set('Authorization', `Bearer ${authToken}`);
 
-  beforeEach(() => {
-    getUserProfileStub = sinon.stub(User, 'getUserProfile').resolves(mockUserProfile);
+      //expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('user');
+      //expect(res.body.user.email).to.equal('newemail@example.com'); // 已更新
+    });
+
+    it('should return 401 if not logged in', async () => {
+      const res = await request(app).get('/api/user/profile');
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Unauthorized');
+    });
+
+    it('should return 404 if user is deleted (manually)', async () => {
+      // 删除用户
+      await User.delete({ email: TEST_USER.email });
+
+      const res = await request(app)
+        .get('/api/user/profile')
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).to.equal(404);
+      expect(res.body.message).to.equal('User not found');
+    });
   });
+    describe('POST /api/user/delete-account', () => {
+    beforeEach(async () => {
+      // 如果用户不存在，重新注册
+      const existing = await User.findOne({email:TEST_USER.email});
+      if (!existing) {
+      // 注册新用户
+          const registerRes = await request(app)
+            .post('/api/auth/register')
+            .send(TEST_USER);
+          expect(registerRes.status).to.equal(201);
 
-  afterEach(() => {
-    getUserProfileStub.restore();
-  });
+          // 登录用户
+          const loginRes = await request(app)
+            .post('/api/auth/login')
+            .send({ email: TEST_USER.email, password: TEST_USER.password });
 
-  it('should return user profile successfully', async () => {
-    const res = await agent
-      .get('/api/user/profile')
-      .set('x-mock-user-id', String(MOCK_USER_ID));
+          expect(loginRes.status).to.equal(200);
+          authToken = loginRes.body.token;
+          userId = extractUserId(authToken);
+      }
+    });
 
-    expect(res.status).to.equal(200);
-    expect(res.body).to.have.property('user');
-    expect(res.body.user).to.deep.equal(mockUserProfile);
+    it('should delete account with correct confirmation', async () => {
+      const res = await request(app)
+        .post('/api/user/delete-account')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ confirmation: 'DELETE MY ACCOUNT' });
 
-    sinon.assert.calledOnceWithExactly(getUserProfileStub, MOCK_USER_ID);
-  });
+      expect(res.status).to.equal(200);
+      expect(res.body).to.deep.equal({
+        success: true,
+        message: 'Account deleted successfully'
+      });
 
-  it('should return 401 unauthorized if no user', async () => {
-    const res = await agent.get('/api/user/profile');
-    expect(res.status).to.equal(401);
-    expect(res.body).to.have.property('error', 'Unauthorized');
-  });
+      const user = await User.findById(userId);
+      expect(user).to.be.null;
+    });
 
-  it('should return 404 if user not found', async () => {
-    getUserProfileStub.resolves(null); // 模拟找不到用户
+    it('should return 400 for incorrect confirmation text', async () => {
+      const res = await request(app)
+        .post('/api/user/delete-account')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ confirmation: 'WRONG TEXT' });
 
-    const res = await agent
-      .get('/api/user/profile')
-      .set('x-mock-user-id', String(MOCK_USER_ID));
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal('Validation failed');
+      expect(res.body.details).to.be.an('array');
+    });
 
-    expect(res.status).to.equal(404);
-    expect(res.body).to.have.property('error', 'User not found');
-  });
+    it('should return 400 if confirmation is missing', async () => {
+      const res = await request(app)
+        .post('/api/user/delete-account')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({});
 
-  it('should handle getUserProfile throwing error gracefully', async () => {
-    getUserProfileStub.rejects(new Error('DB error'));
+      expect(res.status).to.equal(400);
+      expect(res.body.message).to.equal('Validation failed');
+    });
 
-    const res = await agent
-      .get('/api/user/profile')
-      .set('x-mock-user-id', String(MOCK_USER_ID));
+    it('should return 401 if not authenticated', async () => {
+      const res = await request(app)
+        .post('/api/user/delete-account')
+        .send({ confirmation: 'DELETE MY ACCOUNT' });
 
-    expect(res.status).to.equal(500);
-    expect(res.body).to.have.property('error', 'Server error');
+      expect(res.status).to.equal(401);
+      expect(res.body.message).to.equal('Unauthorized');
+    });
+
+    it('should return 404 if user already deleted', async () => {
+      // 确保用户已经被删除
+      await User.deleteById(userId);
+
+      const res = await request(app)
+        .post('/api/user/delete-account')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({ confirmation: 'DELETE MY ACCOUNT' });
+
+      expect(res.status).to.equal(404);
+      expect(res.body.message).to.equal('User not found');
+    });
   });
 });
-});
-

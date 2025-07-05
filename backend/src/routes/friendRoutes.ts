@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import Friend from '../models/friend';
 import {
-  SearchUsersRequest,
+  SearchUsersQuery,
   SendFriendRequest,
   RespondFriendRequest,
   GetFriendsListResponse,
@@ -13,55 +13,34 @@ import { promises } from 'dns';
 import db from '../models/db';
 const router: Router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'secure_fallback_secret';
+import { authenticate, AuthenticatedRequest} from '../utils/authenticate';
 
-// 修正后的身份验证中间件
-const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
-  const token = req.cookies.token;
-  
-  if (!token) {
-    res.status(401).json({ error: 'Authentication required' });
-    return;
-  }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: number };
-    (req as any).user = { id: decoded.id };
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-};
-
-// 使用修正后的中间件
-router.use((req, res, next) => requireAuth(req, res, next));
-/**
- * 搜索用户
- * GET /friends/search?q=keyword
- */
 router.get('/search', 
-  async (req: Request<{}, {}, {}, SearchUsersRequest>, res: Response, next: NextFunction): Promise<void> =>  {
+  authenticate,
+  async (req: Request<{}, {}, {}, SearchUsersQuery>, res: Response, next: NextFunction): Promise<void> => {
     try {
       const keyword = req.query.q;
+      const userId = (req as any).userId; // 从认证中间件获取用户ID
+      
       if (!keyword || keyword.length < 2) {
-          res.status(400).json({ 
+        res.status(400).json({ 
           error: 'Keyword must be at least 2 characters long' 
         });
-        return; 
+        return;
       }
 
-      const currentUserId = (req as any).user.id;
       const searchTerm = `%${keyword}%`;
       
-      const db = require('../models/db');
       const query = `
-        SELECT id, nickname, avatar 
+        SELECT id, email, nickname, avatar 
         FROM users 
         WHERE (nickname LIKE ? OR email LIKE ?)
           AND id != ?
         LIMIT 20
       `;
       
-      db.all(query, [searchTerm, searchTerm, currentUserId], (err: any, rows: any) => {
+      db.all(query, [searchTerm, searchTerm, userId], (err, rows) => {
         if (err) {
           console.error('Search error:', err);
           return res.status(500).json({ error: 'Database error' });
@@ -78,11 +57,14 @@ router.get('/search',
  * 发送好友请求
  * POST /friends/request
  */
-router.post('/request', 
-  async (req: Request<{}, {}, SendFriendRequest>, res: Response, next: NextFunction) : Promise<void> => {
+router.post('/request', authenticate,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) : Promise<void> => {
     try {
       const { userId, message } = req.body;
-      const currentUserId = (req as any).user.id;
+      const currentUserId = req.userId;
+      if (!currentUserId) {
+        return void res.status(401).json({ error: 'Unauthorized' });
+      } // 从认证中间件获取用户ID
       //console.log('发送请求的用户ID（currentUserId）:', currentUserId);
       //console.log('目标用户ID（userId）:', userId);
       // 确保目标用户存在
@@ -122,12 +104,12 @@ router.post('/request',
  * 响应好友请求
  * POST /friends/request/:requestId/respond
  */
-router.post('/request/:requestId/respond', 
-  async (req: Request<{ requestId: string }, {}, RespondFriendRequest>, res: Response, next: NextFunction) :Promise<void> => {
+router.post('/request/:requestId/respond', authenticate,
+  async (req: AuthenticatedRequest, res: Response, next: NextFunction) :Promise<void> => {
     try {
       const requestId = parseInt(req.params.requestId);
       const { accept } = req.body;
-      const currentUserId = (req as any).user.id;
+      const currentUserId = req.userId;
       
       if (isNaN(requestId)) {
         res.status(400).json({ error: 'Invalid request ID' });
@@ -164,10 +146,13 @@ router.post('/request/:requestId/respond',
  * 获取好友列表
  * GET /friends
  */
-router.get('/', 
-  async (req: Request, res: Response<GetFriendsListResponse[]>, next: NextFunction) => {
+router.get('/', authenticate,
+  async (req: AuthenticatedRequest, res: Response<GetFriendsListResponse[]>, next: NextFunction) => {
     try {
-      const currentUserId = (req as any).user.id;
+      const currentUserId = req.userId;
+      if (!currentUserId) {
+        return void res.status(401);
+      }
       const friends = await Friend.getFriends(currentUserId);
       
       // 确保返回空数组而不是undefined
@@ -182,10 +167,13 @@ router.get('/',
  * 获取待处理的好友请求
  * GET /friends/requests/pending
  */
-router.get('/requests/pending', 
-  async (req: Request, res: Response<FriendRequestResponse[]>, next: NextFunction) => {
+router.get('/requests/pending', authenticate,
+  async (req: AuthenticatedRequest, res: Response<FriendRequestResponse[]>, next: NextFunction) => {
     try {
-      const currentUserId = (req as any).user.id;
+      const currentUserId = req.userId;
+      if (!currentUserId) {
+        return void res.status(401);
+      }
       const requests = await Friend.getPendingRequests(currentUserId);
       
       // 确保返回空数组而不是undefined

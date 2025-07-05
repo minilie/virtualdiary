@@ -3,7 +3,8 @@ import request from 'supertest';
 import app from '../../src/app';
 import Diary from '../../src/models/diary';
 import User from '../../src/models/user';
-
+import { extractUserId } from '@/utils/authenticate';
+import db from '../../src/models/db';
 const TEST_USER = {
   email: 'test_diary@example.com',
   password: 'password123',
@@ -28,7 +29,8 @@ describe('Diary Routes', () => {
         password: TEST_USER.password,
       });
 
-    authToken = loginRes.body.other.token;
+    authToken = loginRes.body.token;
+    
     //console.log('登录返回的token:', authToken);
   });
 
@@ -59,7 +61,7 @@ describe('Diary Routes', () => {
 
       const res = await request(app)
         .post('/api/diary')
-        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`)
         .send(diaryData);
 
       expect(res.status).to.equal(201);
@@ -75,7 +77,7 @@ describe('Diary Routes', () => {
     it('应返回400错误 (缺少标题)', async () => {
       const res = await request(app)
         .post('/api/diary')
-        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`)
         .send({
           content: 'Content without title',
           emotions: ['sad'],
@@ -106,7 +108,7 @@ describe('Diary Routes', () => {
     it('应获取日记列表', async () => {
       const res = await request(app)
         .get('/api/diary')
-        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`)
         .query({ page: 1, limit: 10 });
 
       expect(res.status).to.equal(200);
@@ -117,7 +119,7 @@ describe('Diary Routes', () => {
     it('应过滤日记 (按情绪)', async () => {
       const res = await request(app)
         .get('/api/diary')
-        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`)
         .query({ emotion: 'excited' });
 
       expect(res.status).to.equal(200);
@@ -130,7 +132,7 @@ describe('Diary Routes', () => {
     it('应获取日记详情', async () => {
       const res = await request(app)
         .get(`/api/diary/${testDiaryId}`)
-        .set('Cookie', [`token=${authToken}`]);
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).to.equal(200);
       expect(Number(res.body.id)).to.equal(testDiaryId);
@@ -139,7 +141,7 @@ describe('Diary Routes', () => {
     it('应返回404错误 (无效ID)', async () => {
       const res = await request(app)
         .get('/api/diary/999999')
-        .set('Cookie', [`token=${authToken}`]);
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).to.equal(404);
     });
@@ -157,7 +159,7 @@ describe('Diary Routes', () => {
 
       const res = await request(app)
         .put(`/api/diary/${testDiaryId}`)
-        .set('Cookie', [`token=${authToken}`])
+        .set('Authorization', `Bearer ${authToken}`)
         .send(updateData);
 
       expect(res.status).to.equal(200);
@@ -178,11 +180,11 @@ describe('Diary Routes', () => {
         email: otherUser.email,
         password: otherUser.password,
       });
-      const otherToken = loginRes.body.other.token;
+      const otherToken = loginRes.body.token;
 
       const res = await request(app)
         .put(`/api/diary/${testDiaryId}`)
-        .set('Cookie', [`token=${otherToken}`])
+        .set('Authorization', `Bearer ${otherToken}`)
         .send({ title: 'Hack attempt' });
 
       expect(res.status).to.equal(403);
@@ -196,7 +198,7 @@ describe('Diary Routes', () => {
     it('应成功删除日记', async () => {
       const res = await request(app)
         .delete(`/api/diary/${testDiaryId}`)
-        .set('Cookie', [`token=${authToken}`]);
+        .set('Authorization', `Bearer ${authToken}`);
 
       expect(res.status).to.equal(200);
       expect(res.body).to.have.property('msg', 'Diary deleted successfully');
@@ -209,4 +211,129 @@ describe('Diary Routes', () => {
       testDiaryId = 0;
     });
   });
+  /*
+    describe('POST /diary/:diaryId/share', () => {
+    let friendToken: string;
+    let friendId: number;
+
+    before(async () => {
+      // 创建一个好友用户
+      const friend = {
+        email: 'friend@example.com',
+        password: 'friendpass123',
+        nickname: 'friendly',
+      };
+
+      await request(app).post('/api/auth/register').send(friend);
+      const loginRes = await request(app).post('/api/auth/login').send({
+        email: friend.email,
+        password: friend.password,
+      });
+      friendToken = loginRes.body.token;
+
+      const friendUser = await User.findOne({ email: friend.email });
+      friendId = friendUser.id;
+
+      // 添加互为好友（模拟数据库插入）
+      await new Promise<void>((resolve, reject) => {
+        db.run(
+          'INSERT INTO friends (user_id, friend_id) VALUES (?, ?), (?, ?)',
+          [friendId, extractUserId(authToken), extractUserId(friendToken), friendId],
+          err => (err ? reject(err) : resolve())
+        );
+      });
+
+      // 重新创建一篇日记供测试分享
+      const res = await request(app)
+        .post('/api/diary')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Diary to Share',
+          content: 'Content for sharing test.',
+          emotions: ['calm'],
+          topics: ['test'],
+          visibility: 'private',
+        });
+      testDiaryId = res.body.id;
+    });
+
+    it('应成功将日记分享给好友', async () => {
+      const res = await request(app)
+        .post(`/api/diary/${testDiaryId}/share`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          friendIds: [friendId],
+          settings: {
+            allowComment: true,
+            visibility: 'friends',
+          },
+        });
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('success', true);
+      expect(res.body.sharedCount).to.equal(1);
+    });
+
+    it('应返回 400 错误（无效好友）', async () => {
+      const res = await request(app)
+        .post(`/api/diary/${testDiaryId}/share`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          friendIds: [999999], // 不存在的好友
+          settings: {
+            allowComment: false,
+            visibility: 'friends',
+          },
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body).to.have.property('error');
+    });
+
+    it('应返回 400 错误（请求格式非法）', async () => {
+      const res = await request(app)
+        .post(`/api/diary/${testDiaryId}/share`)
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          friendIds: 'not-an-array',
+        });
+
+      expect(res.status).to.equal(400);
+      expect(res.body).to.have.property('error');
+    });
+  });
+
+  describe('GET /diary/:diaryId/friends-feedback', () => {
+    it('应成功获取好友的未来评论（空数组）', async () => {
+      const res = await request(app)
+        .get(`/api/diary/${testDiaryId}/friends-feedback`)
+        .set('Authorization', `Bearer ${authToken}`);
+
+      expect(res.status).to.equal(200);
+      expect(res.body).to.have.property('comments');
+      expect(res.body.comments).to.be.an('array');
+    });
+
+    it('应返回 403（无权访问他人私密日记）', async () => {
+      // 创建一个未共享的日记
+      const resDiary = await request(app)
+        .post('/api/diary')
+        .set('Authorization', `Bearer ${authToken}`)
+        .send({
+          title: 'Private Diary',
+          content: 'This is private',
+          emotions: ['angry'],
+          topics: ['secret'],
+          visibility: 'private',
+        });
+
+      const res = await request(app)
+        .get(`/api/diary/${resDiary.body.id}/friends-feedback`)
+        .set('Authorization', `Bearer ${friendToken}`);
+
+      expect(res.status).to.equal(403);
+      expect(res.body).to.have.property('error');
+    });
+  });*/
+
 });

@@ -9,6 +9,10 @@ export interface AuthenticatedRequest extends Request {
   userId?: number;
 }
 
+export function extractUserId(token: string) : number {
+    const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
+    return decoded.userId; 
+}
 
 export function authenticate(
   req: AuthenticatedRequest, // 修复3：使用标准Request类型

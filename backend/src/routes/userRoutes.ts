@@ -1,9 +1,9 @@
 import express, { Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import { PersonalitySetupRequest, UserProfile, UserProfileResponse} from '../types/userTypes';
+import { PersonalitySetupRequest, UserProfile, UserProfileResponse,  DeleteAccountRequest,  DeleteAccountResponse} from '../types/userTypes';
 import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
-
+import { authenticate, AuthenticatedRequest} from '../utils/authenticate';
 const router: Router = express.Router();
 
 /**
@@ -14,19 +14,21 @@ const router: Router = express.Router();
  */
 router.post(
   '/personality-setup',
-  [
+  authenticate,
+  [ 
     body('personality').isObject(),
     body('goals').isArray(),
     body('communicationStyle').isString()
   ],
-  async (req: Request<{}, {}, PersonalitySetupRequest>, res: Response<OkResponse | ErrorResponse>) => {
+  //async (req: Request<{}, {}, PersonalitySetupRequest>, res: Response<OkResponse | ErrorResponse>) => {
+  async (req: AuthenticatedRequest, res: Response<OkResponse | ErrorResponse>) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
       void res.status(400).json({ message: 'Validation failed', details: errs.array() });
       return;
     }
     try {
-      const userId = (req as any).user?.id;
+      const userId = req.userId!;
       if (!userId) {
         void res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -51,18 +53,19 @@ router.post(
  */
 router.put(
   '/profile',
+  authenticate,
   [
     body('nickname').optional().isString(),
     body('avatar').optional().isURL()
   ],
-  async (req: Request<{}, {}, UserProfile>, res: Response<OkResponse | ErrorResponse>) => {
+  async (req: AuthenticatedRequest, res: Response<OkResponse | ErrorResponse>) => {
     const errs = validationResult(req);
     if (!errs.isEmpty()) {
       void res.status(400).json({ message: 'Validation failed', details: errs.array() });
       return;
     }
     try {
-      const userId = (req as any).user?.id;
+      const userId = req.userId;
       if (!userId) {
         void res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -80,9 +83,10 @@ router.put(
 );
 router.get(
   '/profile',
-  async (req: Request, res: Response<UserProfileResponse | ErrorResponse>) => {
+  authenticate,
+  async (req: AuthenticatedRequest, res: Response<UserProfileResponse | ErrorResponse>) => {
     try {
-      const userId = (req as any).user?.id;
+      const userId = req.userId!;
       if (!userId) {
         void res.status(401).json({ message: 'Unauthorized' });
         return;
@@ -102,5 +106,53 @@ router.get(
   }
 );
 
+router.post(
+  '/delete-account',
+  authenticate,
+  [
+    body('confirmation')
+      .isString()
+      .withMessage('Confirmation must be a string')
+      .equals('DELETE MY ACCOUNT') // 要求用户必须输入这个确认文本
+      .withMessage('Confirmation text does not match')
+  ],
+  async (req: AuthenticatedRequest, res: Response<DeleteAccountResponse | ErrorResponse>) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return void res.status(400).json({ 
+        message: 'Validation failed', 
+        details: errors.array() 
+      });
+    }
 
+    try {
+      const userId = req.userId;
+      if (!userId) {
+        return void res.status(401).json({ message: 'Unauthorized' });
+      }
+
+      // 先获取用户信息用于日志或其他操作
+      const user = await User.findById(userId);
+      if (!user) {
+        return void res.status(404).json({ message: 'User not found' });
+      }
+
+      // 执行删除操作
+      const result = await User.deleteById(userId);
+      if ((result as any).changes === 0) {
+        return void res.status(500).json({ message: 'Failed to delete account' });
+      }
+
+      // 这里可以添加其他清理操作，如删除用户的日记、好友关系等
+
+      return void res.json({ 
+        success: true, 
+        message: 'Account deleted successfully' 
+      });
+    } catch (err) {
+      console.error('Error deleting account:', err);
+      return void res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
 export default router;

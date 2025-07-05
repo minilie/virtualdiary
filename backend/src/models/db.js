@@ -21,7 +21,7 @@ db.serialize(() => {
     FOREIGN KEY (from_user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (to_user_id) REFERENCES users(id) ON DELETE CASCADE
   )`);
-
+    
   // 创建好友关系表（双向关系）
   db.run(`CREATE TABLE IF NOT EXISTS friends (
     user_id INTEGER NOT NULL,
@@ -31,12 +31,14 @@ db.serialize(() => {
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
   )`);
-  /*db.run(`CREATE TABLE IF NOT EXISTS diary_shares (
+// 日记分享表
+  db.run(`CREATE TABLE IF NOT EXISTS diary_shares (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     diary_id INTEGER NOT NULL,
     sharer_id INTEGER NOT NULL,
     friend_id INTEGER NOT NULL,
-    settings TEXT DEFAULT '{}',
+    allow_comment BOOLEAN DEFAULT 1,
+    visibility TEXT CHECK(visibility IN ('private', 'friends', 'public')) DEFAULT 'friends',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (diary_id) REFERENCES diaries(id) ON DELETE CASCADE,
     FOREIGN KEY (sharer_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -44,16 +46,17 @@ db.serialize(() => {
     UNIQUE(diary_id, friend_id)  -- 防止重复分享
   )`);
 
-  // 添加日记评论表
+  // 日记评论表
   db.run(`CREATE TABLE IF NOT EXISTS diary_comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     diary_id INTEGER NOT NULL,
     friend_id INTEGER NOT NULL,
     comment TEXT NOT NULL,
+    is_future_comment BOOLEAN DEFAULT 0,  -- 标记是否为"未来评论"
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (diary_id) REFERENCES diaries(id) ON DELETE CASCADE,
     FOREIGN KEY (friend_id) REFERENCES users(id) ON DELETE CASCADE
-  )`);*/
+  )`);
 });
 // 启用外键约束
 db.run('PRAGMA foreign_keys = ON', (err) => {

@@ -3,6 +3,8 @@ import authRoutes from './authRoutes'; // 2. 省略 `.ts` 扩展名
 import userRoutes from './userRoutes';
 import diaryRoutes from './diaryRoutes';
 import friendRoutes from './friendRoutes';
+import settingsRoutes from './settingsRoutes';
+import dataRoutes from './dataRoutes';
 const router: Router = express.Router();
 
 router.use('/auth', authRoutes);
@@ -29,7 +31,7 @@ router.use('/friends', friendRoutes);
 
 // // 设置管理路由
 // const settingsRoutes = require('./settingsRoutes');
-// router.use('/settings', settingsRoutes);
+ router.use('/settings', settingsRoutes);
 
 // // 数据分析路由
 // const analyticsRoutes = require('./analyticsRoutes');
@@ -37,6 +39,6 @@ router.use('/friends', friendRoutes);
 
 // // 数据导出路由
 // const dataRoutes = require('./dataRoutes');
-// router.use('/data', dataRoutes);
+router.use('/data', dataRoutes);
 
 export default router;
