@@ -1,6 +1,7 @@
 //const sqlite3 = require('sqlite3').verbose();
 //const db = new sqlite3.Database('./db.sqlite');
 const db = require('./db');
+
 // 确保用户表存在
 db.run(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,9 +19,9 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 class User {
   constructor(params) {
     if (params.id) this.id = params.id;
-    this.email = email;
-    this.password = password;
-    this.nickname = nickname;
+    this.email = params.email;
+    this.password = params.password;
+    this.nickname = params.nickname;
   }
   
   // 保存用户到数据库（实际插入操作）

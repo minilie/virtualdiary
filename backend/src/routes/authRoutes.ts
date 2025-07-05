@@ -5,6 +5,7 @@ import { body, validationResult, Result, ValidationError } from 'express-validat
 import { UserLogin, UserRegister, LoginResponse } from '../types/authTypes';
 import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import User from '../models/user';
+import { authenticate } from '@/utils/authenticate';
 
 const router: Router = express.Router();
 
@@ -42,6 +43,7 @@ router.post('/register',
     if (!errors.isEmpty()) {
       const errorDetails = errors.array();
       
+      console.log('invalid email or passward!!!!');
       // 返回验证错误响应
       res.status(400).json({
         message: 'Invalid email or password',
@@ -56,6 +58,7 @@ router.post('/register',
       // 检查邮箱是否已注册
       const existingUser = await User.findOne({ email });
       if (existingUser) {
+        console.log('Email already registered');
         res.status(409).json({ 
           message: 'Email already registered' 
         });
@@ -72,8 +75,7 @@ router.post('/register',
         password: hashedPassword,
         nickname
       });
-      await newUser.save();
-
+      const nu = await newUser.save();
       // 返回成功响应
       res.status(201).json({ 
         msg: 'success'
@@ -172,7 +174,9 @@ router.post('/login',
  * - 200 OK: 登出成功
  * - 500 Internal Server Error: 服务器内部错误
  */
-router.post('/logout', 
+router.post(
+  '/logout', 
+  authenticate,
   (_req: Request, res: Response<OkResponse | ErrorResponse>) => {
     try {
       // 清除安全Cookie（使用与登录相同的安全配置）
