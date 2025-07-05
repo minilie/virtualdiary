@@ -15,7 +15,7 @@ export function extractUserId(token: string) : number {
 }
 
 export function authenticate(
-  req: AuthenticatedRequest, // 修复3：使用标准Request类型
+  req: AuthenticatedRequest, // 使用标准Request类型
   res: Response,
   next: NextFunction
 ) {
@@ -27,8 +27,7 @@ export function authenticate(
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
-    req.userId = decoded.userId; // 修复5：通过声明合并添加userId
+    req.userId = extractUserId(token);
     next();
   } catch (err) {
     // 修复6：区分错误类型

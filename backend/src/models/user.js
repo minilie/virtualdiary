@@ -1,6 +1,7 @@
 //const sqlite3 = require('sqlite3').verbose();
 //const db = new sqlite3.Database('./db.sqlite');
 const db = require('./db');
+
 // 确保用户表存在
 db.run(`CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
