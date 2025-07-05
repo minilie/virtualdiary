@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 *.log
 db.sqlite
+# 导出文件
+/exports/
+/backups/

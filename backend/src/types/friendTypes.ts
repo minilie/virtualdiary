@@ -1,6 +1,6 @@
 // 搜索用户请求
-export interface SearchUsersRequest {
-  q: string;
+export interface SearchUsersQuery {
+  q?: string;
 }
 
 // 搜索用户结果

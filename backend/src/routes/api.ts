@@ -1,10 +1,13 @@
 import express, { Router } from 'express'; // 1. 使用 ES Module 导入
-import authRoutes from './authRoutes'; // 2. 省略 `.ts` 扩展名
+import authRoutes from './authRoutes';
 import userRoutes from './userRoutes';
 import diaryRoutes from './diaryRoutes';
 import friendRoutes from './friendRoutes';
 import futureRoutes from './futureRoutes';
+import settingsRoutes from './settingsRoutes';
+import dataRoutes from './dataRoutes';
 import feedbackRoutes from './feedbackRoutes';
+
 const router: Router = express.Router();
 
 // 用户登录路由
@@ -19,17 +22,15 @@ router.use('/diary', futureRoutes)
 router.use('/feedback', feedbackRoutes);
 // 好友管理路由
 router.use('/friends', friendRoutes); 
-
-// // 设置管理路由
-// const settingsRoutes = require('./settingsRoutes');
-// router.use('/settings', settingsRoutes);
+// 设置管理路由
+router.use('/settings', settingsRoutes);
+// 数据导出路由
+router.use('/data', dataRoutes);
 
 // // 数据分析路由
 // const analyticsRoutes = require('./analyticsRoutes');
 // router.use('/analytics', analyticsRoutes);
 
-// // 数据导出路由
-// const dataRoutes = require('./dataRoutes');
-// router.use('/data', dataRoutes);
+
 
 export default router;

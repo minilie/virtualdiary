@@ -27,3 +27,12 @@ export interface UserProfileResponse {
     // 你可以根据实际 User 模型结构再加字段
   };
 }
+// 添加到 userTypes.ts 文件
+export interface DeleteAccountRequest {
+  confirmation: string;
+}
+
+export interface DeleteAccountResponse {
+  success: boolean;
+  message: string;
+}

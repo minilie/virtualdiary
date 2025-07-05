@@ -89,7 +89,9 @@ class VirtualDiaryAPI {
    * @param {Object} credentials - 登录凭据
    * @param {string} credentials.email - 邮箱
    * @param {string} credentials.password - 密码
-   * @returns {Promise<Object>} 登录结果（包含token）
+   * @typedef {import('../backend/src/types/authTypes').LoginResponse} LoginResponse
+   * @typedef {import('../backend/src/types/generalTypes').ErrorResponse} ErrorResponse
+   * @returns {Promise<LoginResponse | ErrorResponse>} 登录结果（包含token）
    */
   async login(credentials) {
     const response = await this.request('POST', '/auth/login', credentials);
@@ -101,7 +103,9 @@ class VirtualDiaryAPI {
 
   /**
    * 用户登出
-   * @returns {Promise<Object>} 登出结果
+   * @typedef {import('../backend/src/types/authTypes').OkResponse} OkResponse
+   * @typedef {import('../backend/src/types/generalTypes').ErrorResponse} ErrorResponse
+   * @returns {Promise<OkResponse | ErrorResponse>} 登出结果
    */
   async logout() {
     const response = await this.request('POST', '/auth/logout');

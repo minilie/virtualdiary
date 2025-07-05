@@ -12,6 +12,8 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
   personality_settings TEXT DEFAULT '{}',
   goals TEXT DEFAULT '[]',
   communication_style TEXT,
+  user_settings TEXT DEFAULT '{}',        
+  notification_settings TEXT DEFAULT '{}', 
   createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )`);
 
@@ -140,7 +142,9 @@ class User {
       });
     });
   }
-  // 在 User 类中添加
+  
+
+  //setting设置函数
   /**
    * 通过ID查找用户
    * @param {number} id 
@@ -151,6 +155,83 @@ class User {
       db.get('SELECT * FROM users WHERE id = ?', [id], (err, row) => {
         if (err) return reject(err);
         resolve(row || null);
+      });
+    });
+  }
+  /**
+   * 获取用户设置
+   * @param {number} userId 
+   * @returns {Promise<Object>}
+   */
+  static getUserSettings(userId) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT user_settings FROM users WHERE id = ?`;
+      db.get(query, [userId], (err, row) => {
+        if (err) return reject(err);
+        resolve(row ? JSON.parse(row.user_settings) : {});
+      });
+    });
+  }
+
+  /**
+   * 更新用户设置
+   * @param {number} userId 
+   * @param {Object} settings 
+   * @returns {Promise<Object>}
+   */
+  static updateUserSettings(userId, settings) {
+    return new Promise((resolve, reject) => {
+      const settingsString = JSON.stringify(settings);
+      const query = `UPDATE users SET user_settings = ? WHERE id = ?`;
+      db.run(query, [settingsString, userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
+      });
+    });
+  }
+
+  /**
+   * 获取通知设置
+   * @param {number} userId 
+   * @returns {Promise<Object>}
+   */
+  static getNotificationSettings(userId) {
+    return new Promise((resolve, reject) => {
+      const query = `SELECT notification_settings FROM users WHERE id = ?`;
+      db.get(query, [userId], (err, row) => {
+        if (err) return reject(err);
+        resolve(row ? JSON.parse(row.notification_settings) : {});
+      });
+    });
+  }
+
+  /**
+   * 更新通知设置
+   * @param {number} userId 
+   * @param {Object} settings 
+   * @returns {Promise<Object>}
+   */
+  static updateNotificationSettings(userId, settings) {
+    return new Promise((resolve, reject) => {
+      const settingsString = JSON.stringify(settings);
+      const query = `UPDATE users SET notification_settings = ? WHERE id = ?`;
+      db.run(query, [settingsString, userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
+      });
+    });
+  }
+    /**
+   * 通过ID删除用户账户
+   * @param {number} userId 
+   * @returns {Promise<Object>}
+   */
+  static deleteById(userId) {
+    return new Promise((resolve, reject) => {
+      const query = 'DELETE FROM users WHERE id = ?';
+      db.run(query, [userId], function(err) {
+        if (err) return reject(err);
+        resolve({ success: true, changes: this.changes });
       });
     });
   }
