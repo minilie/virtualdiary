@@ -9,7 +9,7 @@ import AIService from '../utils/AIService'; // 假设的AI服务
 const router: Router = express.Router();
 
 router.get(
-  '/diary/:diaryId/future-feedback',
+  '/:diaryId/future-feedback',
   authenticate,
   async (req: AuthenticatedRequest, res: Response<FutureFeedbackData | ErrorResponse>) => {
     try {
@@ -55,7 +55,7 @@ router.get(
 
 // ===== 生成"未来的你"反馈 =====
 router.post(
-  '/diary/:diaryId/future-feedback',
+  '/:diaryId/future-feedback',
   authenticate,
   async (req: AuthenticatedRequest, res: Response<FutureFeedbackData | ErrorResponse>) => {
     try {
@@ -63,10 +63,13 @@ router.post(
       const userId = req.userId!;
       
       // 解析请求体并设置默认值
-      const { type = 'emotional', style = 'encouraging' } = req.body as { 
-        type?: FeedbackType, 
-        style?: FeedbackStyle 
-      };
+    const { 
+      type = 'emotional', 
+      style = 'encouraging' 
+    } = (req.body || {}) as { 
+      type?: FeedbackType; 
+      style?: FeedbackStyle;
+    };
 
       // 验证日记
       const diary = await Diary.findById(diaryId);
@@ -74,27 +77,30 @@ router.post(
         res.status(404).json({ message: 'Diary not found or access denied' });
         return;
       }
-
+      
       // 检查现有反馈
       let feedback = await FutureFeedback.findByDiaryId(diaryId);
       
       // 调用AI服务生成反馈内容
       const aiContent = await AIService.generateFutureFeedback(diary, { type, style });
 
-      if (feedback) {
+      if (feedback != null) {
         // 更新现有反馈
         feedback.type = type;
         feedback.style = style;
         feedback.content = aiContent;
+        feedback.updatedAt = new Date(); // 确保更新时间戳
         await feedback.save();
       } else {
-        // 创建新反馈
+        // 创建新反馈（添加时间戳）
         feedback = new FutureFeedback({
           diaryId,
           userId,
           type,
           style,
-          content: aiContent
+          content: aiContent,
+          createdAt: new Date(),
+          updatedAt: new Date()
         });
         await feedback.save();
       }

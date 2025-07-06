@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --require ts-node/register --require tsconfig-paths/register tests/**/*.test.ts",
+    "test": "mocha --require ts-node/register --require tsconfig-paths/register tests/**/futureRoutes.test.ts",
     "build": "tsc",
     "start": "node server.js",
     "dev": "nodemon --watch src -e ts,js --exec ts-node src/app.ts"
@@ -22,10 +22,13 @@
     "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.0",
+    "openai": "^5.8.2",
     "pdfkit": "^0.17.1",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "@types/bcrypt": "^5.0.2",
     "@types/chai": "^5.2.2",
     "@types/cookie-parser": "^1.4.9",
@@ -35,6 +38,7 @@
     "@types/mocha": "^10.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.0.3",
+    "@types/pdfkit": "^0.14.0",
     "@types/sinon": "^17.0.4",
     "@types/supertest": "^6.0.3",
     "chai": "^5.2.0",

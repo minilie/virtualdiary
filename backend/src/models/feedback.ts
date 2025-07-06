@@ -372,6 +372,56 @@ class FutureFeedback {
       );
     });
   }
+
+  static async deleteByUserId(userId: number): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+        // 开启事务确保数据一致性
+        db.serialize(() => {
+            db.run('BEGIN TRANSACTION');
+
+            // 1. 先删除关联的对话记录
+            db.run(
+                `DELETE FROM feedback_conversations 
+                 WHERE feedbackId IN (
+                     SELECT id FROM future_feedbacks WHERE userId = ?
+                 )`,
+                [userId],
+                function (err) {
+                    if (err) {
+                        db.run('ROLLBACK');
+                        return reject(err);
+                    }
+
+                    // 2. 再删除主反馈记录
+                    db.run(
+                        `DELETE FROM future_feedbacks WHERE userId = ?`,
+                        [userId],
+                        function (err) {
+                            if (err) {
+                                db.run('ROLLBACK');
+                                return reject(err);
+                            }
+                            db.run('COMMIT');
+                            resolve();
+                        }
+                    );
+                }
+            );
+        });
+    });
+  }
+
+    static async deleteByDiaryId(diaryId: number): Promise<void> {
+    try {
+      await db.run(
+        'DELETE FROM future_feedbacks WHERE diary_id = ?',
+        [diaryId]
+      );
+    } catch (err) {
+      console.error(`删除日记${diaryId}的反馈失败:`, err);
+      throw new Error('删除反馈失败');
+    }
+  }
 }
 
 export default FutureFeedback;

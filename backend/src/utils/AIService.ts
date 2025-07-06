@@ -1,4 +1,5 @@
 import Diary from '../models/diary';
+import { OpenAI } from 'openai';
 import {FeedbackStyle, FeedbackType, ConversationMessage, 
     RatingData, RatingTag, FutureFeedbackData } from '../types/feedbackTypes';
 import FutureFeedback  from '@/models/feedback';
@@ -8,6 +9,7 @@ class AIService {
     diary: Diary,
     options: { type: FeedbackType; style: FeedbackStyle }
   ): Promise<string> {
+    console.log('ai..');
     const { type, style } = options;
     const { title, content, emotions, topics, metadata } = diary;
     
@@ -17,6 +19,7 @@ class AIService {
     const sentiment = metadata.sentimentScore > 0.5 ? '积极' : 
                       metadata.sentimentScore < -0.5 ? '消极' : '中性';
 
+    console.log("提取成功");
     // 构建提示词模板
     const templates: Record<FeedbackType, Record<FeedbackStyle, string>> = {
       emotional: {
@@ -43,10 +46,13 @@ class AIService {
 
     // 构建最终提示词
     const prompt = [
+      `### 背景 ###`,
+      `用户将把它的日记传输给你，请你模仿他的风格，尝试根据日记内容和用户进行对话`,
+      `### 要求 ###`,
       templates[type][style],
+
       `### 日记关键信息 ###`,
       `标题: ${title}`,
-      `字数: ${metadata.wordCount}`,
       `情感值: ${metadata.sentimentScore.toFixed(2)}`,
       `主要情绪: ${emotions.join(', ') || '未标注'}`,
       `话题标签: ${topics.join(', ') || '未标注'}`,
@@ -58,14 +64,20 @@ class AIService {
     ].join('\n');
 
     // 实际应用中这里调用AI模型API
-    // const aiResponse = await callAIModel(prompt);
-    
+    const aiResponse = await this.callAIModelForFeedback(prompt);
+    if (aiResponse === undefined || aiResponse.trim() === '') {
+      return `抱歉，无法生成反馈。请稍后再试。`;
+    }
+    else {
+      return aiResponse;
+    }
+
     // 模拟AI响应（实际开发需替换为真实API调用）
     return this.mockAIResponse(prompt, diary);
   }
 
   private static mockAIResponse(prompt: string, diary: Diary): string {
-    const { type, style } = JSON.parse(prompt.split('\n')[0].match(/{.*}/)?.[0] || '{}');
+    const { type, style } = this.getCurrentOptions(); 
     const emotion = diary.emotions[0] || '复杂';
     
     // 根据类型和风格生成模拟响应
@@ -208,6 +220,34 @@ class AIService {
     };
 
     return responses[type][style];
+  }
+
+  private static getCurrentOptions() {
+    // 实际应用中应从闭包/状态获取
+    return { 
+      type: 'emotional' as FeedbackType, 
+      style: 'encouraging' as FeedbackStyle 
+    };
+  }
+
+  private static getDeepSeekClient() {
+    return new OpenAI({
+      apiKey: process.env.DEEPSEEK_API_KEY, // 从环境变量读取
+      baseURL: "https://api.deepseek.com/v1", // DeepSeek 专用端点[6,8](@ref)
+    });
+  }
+
+  static async callAIModelForFeedback(prompt: string): Promise<string | undefined> {
+    const client = this.getDeepSeekClient();
+    const response = await client.chat.completions.create({
+      model: "deepseek-chat", // DeepSeek-V3 的模型标识[6,8](@ref)
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: 200,
+    });
+    const ans = response.choices[0].message.content?.trim();
+    console.log("AI Response:", ans);
+    return ans;
   }
 }
 

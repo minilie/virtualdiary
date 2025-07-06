@@ -54,7 +54,7 @@ router.post(
 
 // ===== 与"未来的你"继续对话 =====
 router.post(
-  '/feedback/:feedbackId/conversation',
+  '/:feedbackId/conversation',
   authenticate,
   async (req: AuthenticatedRequest, res: Response<ConversationMessage | ErrorResponse>) => {
     try {
