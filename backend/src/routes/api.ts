@@ -9,6 +9,7 @@ import dataRoutes from './dataRoutes';
 import feedbackRoutes from './feedbackRoutes';
 import memoryRoutes from './memoryRoutes'; 
 import decisionRoutes from './decisionRoutes';
+import analyticsRoutes from './analyticsRoutes';
 const router: Router = express.Router();
 
 // 用户登录路由
@@ -34,7 +35,7 @@ router.use('/decision', decisionRoutes);
 
 // // 数据分析路由
 // const analyticsRoutes = require('./analyticsRoutes');
-// router.use('/analytics', analyticsRoutes);
+router.use('/analytics', analyticsRoutes);
 
 
 

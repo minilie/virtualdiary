@@ -4,6 +4,8 @@ import { ExportOptions, ExportResult, BackupOptions, BackupResult } from '../typ
 import { OkResponse, ErrorResponse } from '../types/generalTypes';
 import { authenticate, AuthenticatedRequest } from '../utils/authenticate';
 import Diary from '../models/diary';
+import FutureFeedback from '../models/feedback';
+import Analytics from '../models/analytics';
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
@@ -58,13 +60,37 @@ router.post(
       }
 
       // TODO: 实现反馈和分析数据的导出
-      if (dataTypes.includes('feedback')) {
-        exportData.feedback = { message: 'Feedback export not implemented yet' };
-      }
+// 导出反馈数据
+  if (dataTypes.includes('feedback')) {
+    const params: { dateRange?: string } = {};
+    if (dateRange) params.dateRange = dateRange;
+    
+    const feedbacks = await FutureFeedback.findByUserId(userId, params);
+    exportData.feedback = feedbacks.map(feedback => feedback.toResponse());
+  }
+
+  // 导出分析数据
+  if (dataTypes.includes('analytics')) {
+    const params: { dateRange?: string } = {};
+    if (dateRange) params.dateRange = dateRange;
+    
+    // 获取所有分析数据
+    const analytics = await Analytics.findByUserId(userId);
+    
+    // 过滤日期范围
+    const filteredAnalytics = analytics.filter(item => {
+      if (!dateRange) return true;
       
-      if (dataTypes.includes('analytics')) {
-        exportData.analytics = { message: 'Analytics export not implemented yet' };
-      }
+      const [startDate, endDate] = dateRange.split(',');
+      const createdAt = new Date(item.createdAt!);
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      return createdAt >= start && createdAt <= end;
+    });
+    
+    exportData.analytics = filteredAnalytics.map(analytic => analytic.toResponse());
+  }
 
       // 生成导出文件
       let fileName = `export_${userId}_${Date.now()}`;
