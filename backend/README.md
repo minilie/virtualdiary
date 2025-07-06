@@ -24,34 +24,25 @@ npm test
 ```
 测试逻辑在 backend/tests 目录下
 
-## ?
-  /**
-   * 获取用户信息
-   * @returns {Promise<Object>} 用户信息
-   */
-  async getUserProfile() {
-    return this.request('GET', '/user/profile');
-  }
+# 后端成员贡献
 
-  /**
-   * 更新用户信息
-   * @param {Object} profileData - 用户信息
-   * @returns {Promise<Object>} 更新结果
-   */
-  async updateUserProfile(profileData) {
-    return this.request('PUT', '/user/profile', profileData);
-  }
+### 郭延庚
+- **用户管理模块(user部分)**
+- **日记核心模块**
+- **记忆连接模块**
+- **好友系统模块**
+- **设置和偏好模块**
+- **数据分析模块**（除与大模型交互部分）
+- **数据导出与备份模块**
 
-  /**
-   * 完成个性化初始设置
-   * @param {Object} personalityData - 个性化数据
-   * @param {Object} personalityData.personality - 性格问卷结果
-   * @param {Array} personalityData.goals - 生活目标
-   * @param {string} personalityData.communicationStyle - 沟通风格
-   * @returns {Promise<Object>} 设置结果
-   */
-  async completePersonalitySetup(personalityData) {
-    return this.request('POST', '/user/personality-setup', personalityData);
-  }
+### 吴承徽
+- **框架搭建**
+- **用户管理模块(auth部分)**
+- **"未来的你"反馈模块**
+- **决策辅助模块**
+- **数据分析模块**（与大模型交互部分）
+- **大模型交互**
 
-这是web应用项目的前后端接口规范，里面涉及到 user 路由的内容。实现三个 auth 路由下的函数。要求符合工业规范，要保证安全性。
+---
+
+*注：本文档记录了各成员在后端开发中的主要贡献模块，可作为项目分工参考。*
