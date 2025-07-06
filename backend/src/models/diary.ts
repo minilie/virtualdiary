@@ -105,7 +105,42 @@ class Diary {
       );
     });
   }
+  static async findAllByUserId(
+    userId: number,
+    filters: {
+      emotion?: string;
+      topic?: string;
+      dateRange?: string;
+    } = {}
+  ): Promise<Diary[]> {
+    let query = `SELECT * FROM diaries WHERE userId = ?`;
+    const queryParams: (string | number)[] = [userId];
 
+    // 构建过滤条件
+    if (filters.emotion) {
+      query += ` AND emotions LIKE ?`;
+      queryParams.push(`%"${filters.emotion}"%`);
+    }
+    if (filters.topic) {
+      query += ` AND topics LIKE ?`;
+      queryParams.push(`%"${filters.topic}"%`);
+    }
+    if (filters.dateRange) {
+      const [start, end] = filters.dateRange.split(',');
+      query += ` AND createdAt BETWEEN ? AND ?`;
+      queryParams.push(start, end);
+    }
+
+    query += ` ORDER BY createdAt DESC`;
+
+    return new Promise((resolve, reject) => {
+      db.all(query, queryParams, (err, rows: DiaryRecord[]) => {
+        if (err) return reject(err);
+        const diaries = rows.map(row => this.parseDiaryRecord(row));
+        resolve(diaries);
+      });
+    });
+  }
   // 根据用户ID获取日记列表（支持分页和过滤）
   static async findByUserId(
     userId: number, 
@@ -136,7 +171,13 @@ class Diary {
       query += ` AND createdAt BETWEEN ? AND ?`;
       queryParams.push(start, end);
     }
-
+    if (!params.limit || params.limit === 0) {
+      return this.findAllByUserId(userId, {
+        emotion: params.emotion,
+        topic: params.topic,
+        dateRange: params.dateRange
+      });
+    }
     // 分页
     query += ` ORDER BY createdAt DESC LIMIT ? OFFSET ?`;
     const offset = (page - 1) * limit;

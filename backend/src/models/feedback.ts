@@ -372,6 +372,84 @@ class FutureFeedback {
       );
     });
   }
+    /**
+   * 根据用户ID查找反馈
+   * @param userId 用户ID
+   * @param options 查询选项
+   */
+  static async findByUserId(
+    userId: number,
+    options: {
+      dateRange?: string;
+      limit?: number;
+      offset?: number;
+    } = {}
+  ): Promise<FutureFeedback[]> {
+    const { dateRange, limit, offset } = options;
+    
+    let query = 'SELECT * FROM future_feedbacks WHERE userId = ?';
+    const params: (number | string)[] = [userId];
+    
+    if (dateRange) {
+      const [startDate, endDate] = dateRange.split(',');
+      query += ' AND createdAt BETWEEN ? AND ?';
+      params.push(startDate, endDate);
+    }
+    
+    query += ' ORDER BY createdAt DESC';
+    
+    if (limit !== undefined) {
+      query += ' LIMIT ?';
+      params.push(limit);
+      
+      if (offset !== undefined) {
+        query += ' OFFSET ?';
+        params.push(offset);
+      }
+    }
+    
+    return new Promise((resolve, reject) => {
+      db.all(
+        query,
+        params,
+        async (err, rows) => {
+          if (err) return reject(err);
+          
+          const feedbacks: FutureFeedback[] = [];
+          
+          for (const row of rows) {
+            const feedback = FutureFeedback.parseFromRow(row);
+            feedback.conversations = await FutureFeedback.loadConversations(feedback.id!);
+            feedbacks.push(feedback);
+          }
+          
+          resolve(feedbacks);
+        }
+      );
+    });
+  }
+
+  /**
+   * 转换为API响应格式
+   */
+  toResponse() {
+    return {
+      id: this.id,
+      diaryId: this.diaryId,
+      userId: this.userId,
+      type: this.type,
+      style: this.style,
+      content: this.content,
+      rating: this.rating,
+      conversations: this.conversations?.map(c => ({
+        message: c.message,
+        response: c.response,
+        createdAt: c.createdAt.toISOString()
+      })),
+      createdAt: this.createdAt?.toISOString(),
+      updatedAt: this.updatedAt?.toISOString()
+    };
+  }
 }
 
 export default FutureFeedback;
